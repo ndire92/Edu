@@ -2,6 +2,7 @@
 Django settings for mon_projet_kobo project.
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -13,10 +14,6 @@ SECRET_KEY = 'django-insecure-&@%3)e^=x5$klzz2^cj)mgh=csh#wx3i^g(9wux&@v8m#m=flq
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # Laisse à True pendant les tests
-
-# --- MODIFICATION 1 : ALLOWED_HOSTS ---
-# Indispensable pour que le site fonctionne en ligne
-ALLOWED_HOSTS = ['*.pythonanywhere.com'] 
 
 
 # Application definition
@@ -38,6 +35,7 @@ MIDDLEWARE = [
     
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -92,12 +90,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-LANGUAGE_CODE = 'en-us'  # Tu peux mettre 'fr-fr' si tu veux
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
+LANGUAGES = [
+    ('fr', 'Français'),
+    ('ar', 'العربية'),
+]
+LANGUAGE_CODE = 'fr-fr'
 
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
 
 # Static files (CSS, JavaScript, Images)
 # --- MODIFICATION 3 & 4 : CONFIGURATION STATIQUE POUR PYTHONANYWHERE ---
