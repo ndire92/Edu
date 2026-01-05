@@ -1,0 +1,207 @@
+{% load my_extras %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard KoboToolbox</title>
+<style>
+    /* --- CONFIGURATION GÉNÉRALE --- */
+    :root {
+        --primary-color: #4f46e5;
+        --bg-color: #f3f4f6;
+        --card-bg: #ffffff;
+        --text-color: #1f2937;
+        --border-color: #d1d5db; /* Bordure un peu plus foncée pour être visible */
+    }
+
+    body {
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 20px;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 { text-align: center; color: var(--primary-color); margin-bottom: 40px; font-weight: 700; }
+    
+    .card {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+    .card h2 {
+        margin-top: 0; color: #374151; font-size: 1.25rem;
+        border-bottom: 2px solid var(--bg-color); padding-bottom: 10px; margin-bottom: 20px;
+    }
+        
+        /* --- Style Barre de Recherche --- */
+        .search-box {
+            display: flex; gap: 10px; margin-bottom: 20px;
+        }
+        .search-input {
+            flex-grow: 1; padding: 10px 15px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;
+        }
+        .search-input:focus { outline: 2px solid var(--primary-color); border-color: transparent; }
+        .btn-search {
+            background-color: var(--primary-color); color: white; border: none; padding: 10px 20px;
+            border-radius: 6px; cursor: pointer; font-weight: 600;
+        }
+        .btn-search:hover { background-color: #4338ca; }
+    .graph-container img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+    /* --- STYLE TABLEAU AVEC SÉPARATEURS --- */
+    .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse; /* Fusionne les bordures */
+        min-width: 600px;
+        font-size: 14px;
+        border: 1px solid var(--border-color); /* Bordure extérieure du tableau */
+    }
+
+    thead th {
+        background-color: var(--primary-color);
+        color: #ffffff;
+        font-weight: 600;
+        text-align: left;
+        padding: 15px; /* Plus d'espace */
+        border-right: 1px solid rgba(255,255,255,0.3); /* Ligne verticale blanche dans l'en-tête */
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    /* Dernière colonne de l'en-tête sans bordure à droite */
+    thead th:last-child { border-right: none; }
+
+    tbody td {
+        padding: 15px; /* Espace généreux dans les cellules */
+        border-right: 1px solid var(--border-color);   /* LIGNE VERTICALE DE SÉPARATION */
+        border-bottom: 1px solid var(--border-color); /* LIGNE HORIZONTALE DE SÉPARATION */
+        color: #4b5563;
+        vertical-align: middle; /* Centrage vertical pour les images */
+    }
+    /* Dernière colonne sans bordure à droite */
+    tbody td:last-child { border-right: none; }
+
+    /* Effet Zebra (une ligne sur deux) */
+    tbody tr:nth-of-type(even) { background-color: #f9fafb; }
+    /* Effet au survol */
+    tbody tr:hover { background-color: #eef2ff; cursor: default; }
+
+    /* --- Pagination --- */
+    .pagination {
+        display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 10px;
+    }
+    .pagination a, .pagination span {
+        padding: 8px 16px; border: 1px solid var(--border-color);
+        text-decoration: none; color: var(--primary-color); border-radius: 5px;
+    }
+    .pagination a:hover { background-color: #eef2ff; }
+    .pagination .current {
+        background-color: var(--primary-color); color: white; border-color: var(--primary-color);
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📊 Tableau de Bord Multi-Formulaires</h1>
+
+    <!-- On boucle sur chaque tableau récupéré dans views.py -->
+  
+<!-- On boucle sur chaque formulaire trouvé -->
+
+{% for table in all_tables %}
+
+    <div class="card" style="margin-top: 30px;">
+        <h2>{{ table.title }} <small style="font-size: 0.6em; color: #666;">({{ table.total }} réponses)</small></h2>
+
+        <!-- Graphique -->
+        {% if table.graph %}
+            <div class="graph-container" style="margin-bottom: 20px;">
+                <img src="data:image/png;base64,{{ table.graph }}" alt="Graphique {{ table.title }}">
+            </div>
+        {% endif %}
+            <!-- TABLEAU (Aperçu des 10 premières lignes) -->
+            <h3>Aperçu des données</h3>
+                    <!-- FORMULAIRE DE RECHERCHE -->
+        <form method="GET" action="" class="search-box">
+            <!-- value="{{ query }}" remet ce que l'utilisateur a tapé s'il rafraichit -->
+            <input type="text" name="q" class="search-input" placeholder="Rechercher dans toutes les colonnes..." value="{{ query }}">
+            <button type="submit" class="btn-search">🔍 Rechercher</button>
+        </form>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        {% for header in table.headers %}
+                            <th>{{ header }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- On boucle sur l'objet page_obj fourni par la vue -->
+                    {% for row in table.page_obj %}
+                        <tr>
+                            {% for value in row.values %}
+                                <!-- Affichage intelligent des images -->
+                                {% if value|slice:":4" == "http" %}
+                                    <td>
+                                        <a href="{{ value }}" target="_blank">
+                                            <img src="{{ value }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                        </a>
+                                    </td>
+                                {% else %}
+                                    <td>{{ value }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    {% if not table.page_obj %}
+                        <tr>
+                            <td colspan="{{ table.headers|length }}" style="text-align:center; padding: 20px;">
+                                Aucun résultat pour "{{ query }}".
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- BOUTONS DE PAGINATION -->
+        {% if table.page_obj.has_other_pages %}
+            <div class="pagination">
+                {% if table.page_obj.has_previous %}
+                    <!-- On garde le paramètre de recherche (q) et on change la page -->
+                    <a href="?page={{ table.page_obj.previous_page_number }}&q={{ query }}">« Précédent</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ table.page_obj.number }} / {{ table.page_obj.paginator.num_pages }}
+                </span>
+
+                {% if table.page_obj.has_next %}
+                    <a href="?page={{ table.page_obj.next_page_number }}&q={{ query }}">Suivant »</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    {% empty %}
+        <p>Aucune donnée trouvée pour les formulaires configurés.</p>
+    {% endfor %}
+
+</div>
+
+</body>
+</html>
+
+
+
