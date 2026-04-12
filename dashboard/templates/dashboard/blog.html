@@ -1,0 +1,188 @@
+
+{% extends "base.html" %}
+
+{% block title %}Blog - Edu Dashboard {% endblock %}
+
+{% block content %}
+        <!-- HERO -->
+<section class="hero">
+
+        <!-- HEADER -->
+        <div class="main-title">
+            <h1>Le Blog Éducatif</h1>
+            <p>Découvrez nos dernières actualités, ressources pédagogiques et réussites.</p>
+            
+            <!-- Bouton Créer -->
+            {% if request.user.is_authenticated and request.user.role in 'Directeur,Administrateur' or request.user.is_superuser %}
+            <a href="/blog/create/" class="btn-create">
+                <i class="fa-solid fa-pen-nib"></i> Écrire un article
+            </a>
+            {% endif %}
+        </div>
+</section>
+        <!-- GRILLE DES ARTICLES -->
+        <div class="blog-grid">
+            {% for post in page_obj %}
+            <article class="blog-card">
+             
+    <div class="media-container">
+    {% if post.image %}
+        <img src="{{ post.image.url }}" alt="{{ post.title }}">
+    {% else %}
+        <img src="https://cdn-icons-png.flaticon.com/512/272/272405.png" alt="Default Image">
+    {% endif %}
+</div>
+
+
+                <!-- 2. CONTENU -->
+                <div class="card-content">
+                    <div class="card-meta">
+                        <span><i class="fa-regular fa-calendar"></i> {{ post.created_at|date:"d M Y" }}</span>
+                        <span><i class="fa-solid fa-user"></i> {{ post.author.first_name }}</span>
+                    </div>
+                    
+                    <h3 class="card-title">{{ post.title }}</h3>
+                    
+                    <div class="card-excerpt">
+                        {{ post.content|striptags|truncatechars:150 }}
+                    </div>
+
+                    <!-- 3. ACTIONS (Modifier / Supprimer) -->
+                    {% if request.user.is_superuser or request.user.role == 'Administrateur' or request.user == post.author %}
+                    <div class="post-actions">
+                        
+                        <!-- Bouton Modifier -->
+                        <a href="/blog/edit/{{ post.id }}" class="btn-action-post btn-edit-post" title="Modifier l'article">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+
+                        <!-- Bouton Supprimer -->
+                        <form method="POST" action="{% url 'delete_post' post.id %}" style="display:inline; margin:0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action-post btn-delete-post" title="Supprimer l'article" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+
+                    </div>
+                    {% endif %}
+
+                    <a href="{% url 'blog_detail' post.slug %}" class="btn-read">
+                        Lire la suite <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+
+            </article>
+            {% empty %}
+                <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px; border: 2px dashed var(--border); border-radius: 16px;">
+                    <i class="fa-solid fa-folder-open" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <p>Aucun article publié pour le moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- PAGINATION -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination-container">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="pagination-link">Début</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="pagination-link">Précédent</a>
+            {% endif %}
+
+            <span class="pagination-current">
+                Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="pagination-link">Suivant</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-link">Fin</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+    <!-- ... Votre code Hero ... -->
+</section>
+
+<!-- === NOUVELLE SECTION : GALERIE VIDÉO === -->
+<section class="videos-section">
+    <div class="section-header">
+        <h2><i class="fa-brands fa-youtube"></i> Vidéos à la une</h2>
+        <p>Retrouvez nos dernières productions pédagogiques en vidéo.</p>
+    </div>
+
+<div class="video-grid">
+    {% if video_page_obj %}
+        {% for post in video_page_obj %}
+            <div class="video-card">
+                <div class="video-thumbnail">
+                    <iframe src="{{ post.embed_video_url }}"
+                            title="{{ post.title }}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen loading="lazy"></iframe>
+                </div>
+
+                <div class="video-info">
+                     <div class="card-meta">
+                        <span><i class="fa-regular fa-calendar"></i> {{ post.created_at|date:"d M Y" }}</span>
+                        <span><i class="fa-solid fa-user"></i> {{ post.author.first_name }}</span>
+                    </div>
+                    
+                    <h3 class="card-title">{{ post.title }}</h3>
+                    
+                    <div class="card-excerpt">
+                        {{ post.content|striptags|truncatechars:150 }}
+                    </div>
+                </div>
+
+                <div class="video-actions">
+                                        <a href="{% url 'blog_detail' post.slug %}" class="btn-read">
+                        Lire la suite <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    
+                    {% if request.user.is_authenticated and request.user == post.author %}
+                        <a href="{% url 'edit_post' post.id %}?focus=video" class="btn-action-post btn-edit-post" title="Modifier video">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+               <!-- Bouton Supprimer -->
+                        <form method="POST" action="{% url 'delete_post' post.id %}" style="display:inline; margin:0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action-post btn-delete-post" title="Supprimer  cette video" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette video ?');">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+               
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">
+            Aucune vidéo disponible.
+        </p>
+    {% endif %}
+</div>
+{% if video_page_obj.paginator.num_pages > 1 %}
+<div class="pagination-container">
+    {% if video_page_obj.has_previous %}
+        <a href="?video_page=1" class="pagination-link">Début</a>
+        <a href="?video_page={{ video_page_obj.previous_page_number }}" class="pagination-link">Précédent</a>
+    {% endif %}
+
+    <span class="pagination-current">
+        Page {{ video_page_obj.number }} / {{ video_page_obj.paginator.num_pages }}
+    </span>
+
+    {% if video_page_obj.has_next %}
+        <a href="?video_page={{ video_page_obj.next_page_number }}" class="pagination-link">Suivant</a>
+        <a href="?video_page={{ video_page_obj.paginator.num_pages }}" class="pagination-link">Fin</a>
+    {% endif %}
+</div>
+{% endif %}
+</section>
+<!-- === FIN SECTION VIDÉO === -->
+
+
+{% endblock %}
+

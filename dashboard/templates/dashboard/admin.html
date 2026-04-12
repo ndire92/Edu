@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panneau Administrateur</title>
+    
+    <!-- Polices & Icônes -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* =========================
+           VARIABLES
+        ========================= */
+        :root {
+            --primary: #006233;
+            --primary-dark: #004d26;
+            --accent-yellow: #FFCD00;
+            --bg-body: #f1f5f9;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        /* =========================
+           BASE
+        ========================= */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        body.lang-ar { font-family: 'Cairo', sans-serif; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem; background-color: var(--primary); color: white;
+            position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: linear-gradient(90deg, #006233 0%, #006233 75%, #FFCD00 100%);
+        }
+        .nav-logo { font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .nav-links { display: flex; align-items: center; gap: 1.5rem; }
+        .nav-link { color: white; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        .nav-link:hover { color: #cbd5e1; }
+        .dropdown { position: relative; }
+        .dropdown-toggle { cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 110%; background: white; min-width: 160px; border-radius: 8px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); padding: 10px; z-index: 1000; }
+        .dropdown-menu a { display: block; padding: 8px 12px; color: #333; text-decoration: none; border-radius: 6px; font-weight: 500; }
+        .dropdown-menu a:hover { background: #f1f5f9; color: var(--primary); }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .notification-box { position: relative; margin-left: 15px; }
+        .notification-box i.fa-bell { font-size: 1.2rem; color: white; cursor: pointer; transition: transform 0.3s; }
+        .notification-box i.fa-bell:hover { transform: rotate(15deg); }
+        .notification-box .badge { position: absolute; top: -5px; right: -5px; background-color: #ef4444; color: white; font-size: 0.7rem; font-weight: 800; height: 18px; width: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.7); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .notification-dropdown { display: none; position: absolute; top: 60px; right: 80px; width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 2000; overflow: hidden; animation: slideDownNotif 0.3s ease; }
+        .notification-dropdown.show { display: block; }
+        .notif-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-weight: 700; color: var(--text-main); }
+        .notif-header i.fa-xmark { cursor: pointer; color: #94a3b8; transition: 0.2s; }
+        .notif-header i.fa-xmark:hover { color: var(--danger); }
+        .notif-body { padding: 10px 0; max-height: 300px; overflow-y: auto; }
+        .notif-item { padding: 12px 20px; margin: 5px 0; border-radius: 8px; font-size: 0.9rem; color: #334155; display: flex; align-items: flex-start; gap: 10px; background: white; transition: background 0.2s; cursor: pointer; }
+        .notif-item:hover { background: #f1f5f9; }
+        .notif-item.success { border-left: 4px solid var(--success); background-color: #f0fdf4; }
+        .notif-item.error { border-left: 4px solid var(--danger); background-color: #fef2f2; }
+        .btn-lang { background: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; color: var(--primary); transition: all 0.2s; }
+        .btn-lang:hover { transform: translateY(-1px); box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+        @media (max-width: 768px) { .nav-links { display: none; flex-direction: column; background: var(--primary); position: absolute; top: 60px; right: 0; width: 200px; padding: 1rem; border-radius: 8px; } .nav-links.active { display: flex; } .nav-toggle { display: block; } .notification-dropdown { right: 20px; } }
+        @media (min-width: 769px) { .nav-toggle { display: none; } }
+
+        /* =========================
+           HEADER ADMIN & SEARCH
+        ========================= */
+        .admin-header { text-align: center; margin-bottom: 40px; padding: 40px; background: white; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-top: 4px solid var(--primary); animation: slideUp 0.5s ease; }
+        .admin-icon-header { width: 70px; height: 70px; background: #e0e7ff; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 15px; }
+        .admin-header h1 { margin: 0; font-size: 2rem; font-weight: 800; color: var(--text-main); }
+        .admin-header p { margin: 0; color: var(--text-muted); font-size: 1rem; }
+
+        .search-section { margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .search-wrapper { position: relative; display: flex; align-items: center; background: white; border-radius: 50px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 2px solid var(--border); transition: all 0.3s; }
+        .search-wrapper:focus-within { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 98, 51, 0.1); transform: translateY(-2px); }
+        .search-wrapper i.fa-magnifying-glass { position: absolute; left: 20px; color: #94a3b8; font-size: 1.2rem; }
+        .search-input { width: 100%; padding: 16px 20px 16px 55px; border: none; border-radius: 50px; font-family: 'Inter', sans-serif; font-size: 1.1rem; color: var(--text-main); outline: none; }
+        .search-reset { position: absolute; right: 15px; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; transition: color 0.2s; }
+        .search-reset:hover { color: var(--danger); }
+        .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600; margin-bottom: 30px; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600; margin-bottom: 30px; }
+
+        /* =========================
+           STYLE DU TABLEAU
+        ========================= */
+        .table-container {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+            overflow-x: auto; 
+            animation: slideUp 0.6s ease;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px; 
+        }
+
+        thead {
+            background-color: #f8fafc;
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            text-align: left;
+            padding: 18px 24px;
+            color: #64748b;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background-color: #f8fafc; }
+
+        td {
+            padding: 16px 24px;
+            vertical-align: middle;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        /* Cellule Utilisateur */
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .table-avatar {
+            width: 45px; height: 45px; border-radius: 50%; object-fit: cover;
+            border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .user-info h4 { margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+        .user-info span { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Cellule Contact (Email + Tel) */
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .contact-item:last-child { margin-bottom: 0; }
+        .contact-item i {
+            color: var(--text-muted);
+            width: 16px;
+            text-align: center;
+        }
+        .contact-sub {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* Badge Rôle */
+        .role-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+            background: #f1f5f9; color: #475569;
+        }
+        .role-badge i { color: var(--primary); }
+
+        /* Badge Status */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-badge.active { background-color: #dcfce7; color: #166534; }
+        .status-badge.inactive { background-color: #fee2e2; color: #991b1b; }
+
+        /* Actions Boutons */
+        .actions-wrapper { display: flex; gap: 8px; }
+        .btn-table {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-edit { background-color: #eff6ff; color: #2563eb; }
+        .btn-edit:hover { background-color: #dbeafe; transform: translateY(-1px); }
+        .btn-toggle { background-color: #fff7ed; color: #ea580c; }
+        .btn-toggle:hover { background-color: #ffedd5; }
+        .btn-delete { background-color: #fef2f2; color: #dc2626; }
+        .btn-delete:hover { background-color: #fee2e2; }
+
+        .back-link { position: fixed; bottom: 30px; right: 30px; background: var(--primary); color: white; padding: 15px 30px; border-radius: 50px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); text-decoration: none; font-weight: 600; transition: all 0.3s; z-index: 900; }
+        .back-link:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+
+        @keyframes slideDownNotif { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/" class="nav-logo"><i class="fa-solid fa-chart-line"></i> Edu</a>
+
+  <div class="nav-links">
+    <a href="/dashboard/" class="nav-link"><i class="fa-solid fa-arrow-left"></i> Tableau de Board</a>
+    <a href="/" class="nav-link"><i class="fa-solid fa-house"></i> Accueil</a>
+    <a href="/blog" class="nav-link"><i class="fa-solid fa-newspaper"></i> Blog</a>
+    {% if request.user.is_authenticated %}
+    <div class="dropdown">
+        <a href="#" class="nav-link dropdown-toggle">
+            {% if request.user.profile_image %}
+                <img src="{{ request.user.profile_image.url }}" alt="Profil" style="width:30px; height:30px; border-radius:50%; vertical-align:middle; margin-right:8px;">
+            {% else %}
+                <i class="fa-solid fa-user-circle"></i>
+            {% endif %}
+            {{ request.user.first_name }} <i class="fa-solid fa-chevron-down" style="margin-left:8px; font-size:0.8em;"></i>
+        </a>
+        <div class="dropdown-menu">
+            <a href="{% url 'profile' %}">Mon Profil</a>
+            <a href="{% url 'logout' %}">Déconnexion</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="nav-item notification-box">
+        <i class="fa-solid fa-bell" onclick="toggleNotif()" id="notif-bell"></i>
+        {% if messages %}
+            <span class="badge">{{ messages|length }}</span>
+        {% endif %}
+        <div class="notification-dropdown" id="notif-dropdown">
+            <div class="notif-header">
+                <span><i class="fa-solid fa-triangle-exclamation"></i> Notifications</span>
+                <i class="fa-solid fa-xmark" onclick="closeNotif()" title="Fermer"></i>
+            </div>
+            <div class="notif-body">
+                {% for message in messages %}
+                    <p class="notif-item {% if 'success' in message.tags %}success{% endif %}">
+                        <i class="fa-solid fa-info-circle"></i> {{ message }}
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <button onclick="toggleLanguage()" class="btn-lang" id="lang-btn">🌍</button>
+</nav>
+
+<!-- CONTENU PRINCIPAL -->
+<main class="container">
+
+    <div class="admin-header">
+        <div class="admin-icon-header"><i class="fa-solid fa-shield-halved"></i></div>
+        <h1>Panneau Administrateur</h1>
+        <p>Gérez les droits d'accès et les comptes utilisateurs.</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="search-section">
+        <form action="/admin/" method="GET">
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="q" class="search-input" placeholder="Rechercher par nom, email, téléphone..." value="{{ query }}">
+                
+                {% if query %}
+                    <a href="/admin/" class="search-reset" title="Effacer la recherche">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- TABLEAU DES UTILISATEURS -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Utilisateur</th>
+                    <th style="width: 25%;">Contact</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Inscription</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <!-- UTILISATEUR -->
+                    <td>
+                        <div class="user-cell">
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}" class="table-avatar" alt="Avatar">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random" class="table-avatar" alt="Placeholder">
+                            {% endif %}
+                            <div class="user-info">
+                                <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+                                <span>@{{ user.username }}</span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- CONTACT (Email + Téléphone) -->
+                    <td>
+                        <!-- Email -->
+                        <div class="contact-item">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>{{ user.email }}</span>
+                        </div>
+                        <!-- Téléphone -->
+                        <div class="contact-item contact-sub">
+                            <i class="fa-solid fa-phone"></i>
+                            <!-- IMPORTANT : Assurez-vous que le champ 'phone' existe dans votre modèle User -->
+                            <span>{{ user.phone|default:"Non renseigné" }}</span>
+                        </div>
+                    </td>
+
+                    <!-- RÔLE -->
+                    <td>
+                        <div class="role-badge">
+                            <i class="fa-solid fa-id-card"></i> {{ user.role }}
+                        </div>
+                    </td>
+
+                    <!-- STATUT -->
+                    <td>
+                        <span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}">
+                            {% if user.is_active %} Actif {% else %} Inactif {% endif %}
+                        </span>
+                    </td>
+
+                    <!-- DATE -->
+                    <td>
+                        {{ user.date_joined|date:"d/m/Y" }}
+                    </td>
+
+                    <!-- ACTIONS -->
+                    <td>
+                        <div class="actions-wrapper">
+                            <a href="/admin/edit/{{ user.id }}" class="btn-table btn-edit" title="Modifier">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+
+                            <form method="POST" action="{% url 'admin_toggle_user' user.id %}" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-table btn-toggle" title="Activer/Désactiver">
+                                    <i class="fa-solid fa-power-off"></i>
+                                </button>
+                            </form>
+
+                            <form method="POST" action="{% url 'admin_delete_user' user.id %}" onsubmit="return confirm('ATTENTION ! Êtes-vous sûr ?');" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-table btn-delete" title="Supprimer">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                
+                {% if not users %}
+                <tr>
+                    <td colspan="6" style="text-align:center; padding: 40px; color: var(--text-muted);">
+                        Aucun utilisateur trouvé.
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</main>
+
+<a href="/dashboard" class="back-link">
+    <i class="fa-solid fa-arrow-left"></i> Retour au Dashboard
+</a>
+
+<script>
+    function toggleNotif() {
+        const dropdown = document.getElementById('notif-dropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    function closeNotif() {
+        const dropdown = document.getElementById('notif-dropdown');
+        dropdown.classList.remove('show');
+    }
+
+    window.addEventListener('click', function(e) {
+        const notifBox = document.querySelector('.notification-box');
+        const notifDropdown = document.getElementById('notif-dropdown');
+        if (!notifBox.contains(e.target)) {
+            notifDropdown.classList.remove('show');
+        }
+        
+        if (window.innerWidth > 768) {
+            const dropdownProfile = document.querySelector('.dropdown');
+            const menuProfile = document.querySelector('.dropdown-menu');
+            if (!dropdownProfile.contains(e.target)) {
+                menuProfile.classList.remove('show');
+            }
+        }
+    });
+
+    function toggleLanguage() {
+        const btn = document.getElementById('lang-btn');
+        let currentLang = btn.innerText;
+        currentLang = currentLang === 'Ar' ? 'Fr' : 'Ar';
+        btn.innerText = currentLang;
+    }
+</script>
+</body>
+</html>

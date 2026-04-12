@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Edu{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+    <h1 class="main-title">
+        <i class="fa-solid fa-chart-pie main-icon"></i> 
+        <span data-i18n="title">Dashboard Analytique</span>
+    </h1>
+    <p style="color: var(--text-muted); font-size: 1.1rem;">
+        <span data-i18n="subtitle">
+            Sélectionnez un formulaire ci-dessous pour voir l'analyse détaillée.
+        </span>
+    </p>
+</section>
+
+<!-- CARTES DES FORMULAIRES -->
+{% for table in all_tables %}
+<div class="card" id="card-{{ table.uid }}">
+
+    <h2>
+        {{ table.title }}
+        <small>
+            <i class="fa-solid fa-database"></i>
+            {{ table.total }} <span data-i18n="responses">Réponses</span>
+        </small>
+    </h2>
+
+    <!-- RECHERCHE -->
+    <form method="get" class="search-container">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+            data-i18n-placeholder="search_ph"
+            placeholder="Rechercher..."
+        >
+        <button type="submit" class="btn-search">
+            <i class="fa-solid fa-filter"></i>
+            <span data-i18n="btn_search">Filtrer</span>
+        </button>
+
+        <!-- conserver les filtres -->
+        <input type="hidden" name="filter_month" value="{{ current_month }}">
+        <input type="hidden" name="filter_teacher" value="{{ current_teacher }}">
+        <input type="hidden" name="filter_type" value="{{ current_type }}">
+    </form>
+
+    <!-- FILTRES -->
+    <form method="get" class="filter-bar">
+        <input type="hidden" name="q" value="{{ query }}">
+
+        <div class="filter-group">
+            <label>
+                <i class="fa-regular fa-calendar"></i>
+                <span data-i18n="label_month">Mois</span>
+            </label>
+            <select name="filter_month" onchange="this.form.submit()">
+                <option value="" data-i18n="opt_all">Tout</option>
+                {% for m in table.available_months %}
+                    <option value="{{ m }}" {% if m == current_month %}selected{% endif %}>
+                        {{ m }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>
+                <i class="fa-solid fa-user-graduate"></i>
+                <span data-i18n="label_teacher">Enseignant</span>
+            </label>
+            <select name="filter_teacher" onchange="this.form.submit()">
+                <option value="" data-i18n="opt_all_teachers">Tous</option>
+                {% for t in table.available_teachers %}
+                    <option value="{{ t }}" {% if t == current_teacher %}selected{% endif %}>
+                        {{ t }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>
+                <i class="fa-solid fa-clipboard-check"></i>
+                <span data-i18n="label_status">Statut</span>
+            </label>
+            <select name="filter_type" onchange="this.form.submit()">
+                <option value="" data-i18n="opt_all">Tout</option>
+                <option value="P" {% if current_type == "P" %}selected{% endif %}>Présent (P)</option>
+                <option value="A" {% if current_type == "A" %}selected{% endif %}>Absent (A)</option>
+                <option value="R" {% if current_type == "R" %}selected{% endif %}>Retard (R)</option>
+            </select>
+        </div>
+
+        <div class="filter-group" style="display:flex;align-items:flex-end;">
+            <a href="?" class="btn-reset">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span data-i18n="btn_reset">Réinitialiser</span>
+            </a>
+        </div>
+    </form>
+
+    <!-- GRAPHIQUES -->
+    <div class="dashboard-grid">
+
+        <div class="chart-container chart-full">
+            <div class="chart-header">
+                <i class="fa-solid fa-chart-simple" style="color:var(--primary)"></i>
+                <span data-i18n="chart_bar">Top Absences</span>
+            </div>
+            {{ table.chart_bar|safe }}
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <i class="fa-solid fa-arrow-trend-up" style="color:var(--success)"></i>
+                <span data-i18n="chart_line">Évolution</span>
+            </div>
+            {{ table.chart_line|safe }}
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <i class="fa-solid fa-chart-pie" style="color:var(--accent-yellow)"></i>
+                <span data-i18n="chart_pie">Répartition</span>
+            </div>
+            {{ table.chart_pie|safe }}
+        </div>
+
+    </div>
+
+    <!-- PAGINATION -->
+    {% if table.page_obj.has_other_pages %}
+    <div class="pagination">
+
+        {% if table.page_obj.has_previous %}
+            <a href="?page=1&q={{ query }}&filter_month={{ current_month }}&filter_teacher={{ current_teacher }}&filter_type={{ current_type }}">
+                Début
+            </a>
+            <a href="?page={{ table.page_obj.previous_page_number }}&q={{ query }}&filter_month={{ current_month }}&filter_teacher={{ current_teacher }}&filter_type={{ current_type }}">
+                Précédent
+            </a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ table.page_obj.number }} / {{ table.page_obj.paginator.num_pages }}
+        </span>
+
+        {% if table.page_obj.has_next %}
+            <a href="?page={{ table.page_obj.next_page_number }}&q={{ query }}&filter_month={{ current_month }}&filter_teacher={{ current_teacher }}&filter_type={{ current_type }}">
+                Suivant
+            </a>
+            <a href="?page={{ table.page_obj.paginator.num_pages }}&q={{ query }}&filter_month={{ current_month }}&filter_teacher={{ current_teacher }}&filter_type={{ current_type }}">
+                Fin
+            </a>
+        {% endif %}
+
+    </div>
+    {% endif %}
+
+</div>
+{% empty %}
+<div class="card" style="text-align:center;">
+    <i class="fa-solid fa-database" style="font-size:3rem;color:var(--primary)"></i>
+    <h3>Aucun formulaire disponible</h3>
+    <p>Veuillez ajouter des formulaires dans la configuration.</p>
+</div>
+{% endfor %}
+
+{% endblock %}

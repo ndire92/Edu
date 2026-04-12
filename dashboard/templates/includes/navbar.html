@@ -1,0 +1,57 @@
+<nav class="navbar">
+    <!-- Logo -->
+    <a href="/" class="nav-logo">
+        <i class="fa-solid fa-chart-line"></i> Edu
+    </a>
+
+    <!-- Mobile Toggle -->
+    <div class="nav-toggle" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars"></i>
+    </div>
+
+    <!-- Liens -->
+    <div class="nav-links" id="navLinks">
+        <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
+            <i class="fa-solid fa-house"></i>
+            <span data-i18n="menu_home">Accueil</span>
+        </a>
+
+        <a href="/blog" class="nav-link {% if '/blog' in request.path %}active{% endif %}">
+            <i class="fa-solid fa-newspaper"></i>
+            <span data-i18n="menu_blog">Blog</span>
+        </a>
+{% if request.user.is_authenticated %}
+<!-- Utilisateur connecté -->
+<div class="dropdown">
+    <button type="button" class="nav-link dropdown-toggle" id="userDropdown">
+        {% if request.user.profile_image %}
+            <img src="{{ request.user.profile_image.url }}" class="user-avatar-small" alt="Profil">
+        {% else %}
+            <i class="fa-solid fa-user-circle" style="font-size:1.5rem;"></i>
+        {% endif %}
+        <span>{{ request.user.first_name }}</span>
+        <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
+    </button>
+
+    <div class="dropdown-menu" id="userDropdownMenu">
+        <a href="{% url 'profile' %}">
+            <i class="fa-regular fa-id-card"></i> Mon Profil
+        </a>
+        <a href="{% url 'dashboard' %}">
+            <i class="fa-solid fa-table-list"></i> Dashboard
+        </a>
+        <a href="{% url 'logout' %}">
+            <i class="fa-solid fa-power-off text-danger"></i> Déconnexion
+        </a>
+    </div>
+</div>
+{% else %}
+<a href="{% url 'login' %}" class="nav-link">
+    <i class="fa-solid fa-user-circle"></i> Espace Personnel
+</a>
+{% endif %}
+
+        <!-- Langue -->
+        <button onclick="toggleLanguage()" class="btn-lang" id="lang-btn">🇲🇷</button>
+    </div>
+</nav>

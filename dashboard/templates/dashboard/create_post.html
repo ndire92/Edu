@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvel Article</title>
+    
+    <!-- Polices & Icônes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- TinyMCE -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+   <style>
+        /* =========================
+           VARIABLES & RESET
+        ========================= */
+        :root {
+            --primary: #006233;
+            --primary-dark: #004d26;
+            --accent-yellow: #FFCD00;
+            --bg-body: #f1f5f9;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+
+        /* Correction : Padding-top pour ne pas cacher le contenu sous la navbar fixe */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            padding-top: 90px; /* Espace pour la navbar fixe */
+            display: flex;
+            flex-direction: column; /* Pour que le footer pousse vers le bas si peu de contenu */
+        }
+
+        /* =========================
+           NAVBAR
+        ========================== */
+        .navbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0rem 2rem;
+          background: linear-gradient(90deg, #006233 0%, #006233 75%, #FFCD00 100%);
+          color: white;
+          position: fixed;
+          top: 0; left: 0; width: 100%;
+          z-index: 10000;
+          height: 70px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-logo {
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: white;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .nav-links {
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+        }
+
+        .nav-link {
+          color: white;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+          color: #FFCD00;
+        }
+
+        /* Dropdown User */
+        .dropdown { position: relative; }
+
+        .dropdown-toggle {
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: none;
+          border: none;
+          color: white;
+        }
+
+        .dropdown-menu {
+          display: none; /* Caché par défaut */
+          position: absolute;
+          right: 0;
+          top: 110%;
+          background: white;
+          min-width: 160px;
+          border-radius: 12px;
+          box-shadow: var(--shadow);
+          padding: 8px;
+          margin-top: 10px;
+          border: 1px solid var(--border);
+          z-index: 1000;
+          animation: fadeIn 0.2s ease;
+        }
+
+        .dropdown-menu.show {
+          display: block;
+        }
+
+        .dropdown-menu a {
+          display: block;
+          padding: 10px 15px;
+          color: var(--text-main);
+          text-decoration: none;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          transition: background 0.2s;
+        }
+
+        .dropdown-menu a:hover {
+          background: #f8fafc;
+          color: var(--primary);
+        }
+
+        .user-avatar-small {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid var(--border);
+        }
+
+        /* Bouton langue */
+        .btn-lang {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            padding: 8px 15px; 
+            border-radius: 20px;
+            cursor: pointer; 
+            font-weight: 600;
+            color: var(--primary);
+            transition: all 0.2s;
+            width: 120px;  
+            justify-content: center;    
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .btn-lang:hover { background: #e2e8f0; }
+
+        /* Hamburger (Mobile) */
+        .nav-toggle {
+          display: none;
+          cursor: pointer;
+          font-size: 1.5rem;
+        }
+
+        /* =========================
+           CARTE FORMULAIRE
+        ========================= */
+        .create-card {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border-top: 6px solid var(--primary);
+            animation: slideUp 0.6s ease-out;
+            margin: 0 auto; /* Centre la carte horizontalement */
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .create-header { margin-bottom: 30px; text-align: center; }
+        .create-header h1 { margin: 0; font-size: 2rem; color: var(--text-main); font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .create-header i { color: var(--primary); }
+
+        /* =========================
+           FORMULAIRE
+        ========================= */
+        .form-group { margin-bottom: 25px; text-align: left; }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-label i { color: var(--primary); font-size: 1.1rem; }
+
+        .form-control {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            color: var(--text-main);
+            background: var(--bg-body);
+            transition: all 0.3s ease;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 98, 51, 0.1);
+        }
+
+        textarea.form-control { min-height: 180px; resize: vertical; line-height: 1.6; }
+
+        /* =========================
+           GRILLE TITRE + PREVIEW
+        ========================= */
+        .title-preview-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr; 
+            gap: 25px;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        /* Champ Titre */
+        .title-group input {
+            height: 55px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        /* La boîte de prévisualisation */
+        .preview-wrapper {
+            position: relative;
+            height: 180px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            background: #f8fafc;
+            overflow: hidden;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-wrapper:hover {
+            border-color: var(--primary);
+            background: #f1f5f9;
+        }
+
+        .preview-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        /* Bouton supprimer (Croix) */
+        .btn-remove-preview {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            color: #ef4444;
+            display: none; /* Caché par défaut */
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+            z-index: 10;
+        }
+        .btn-remove-preview:hover { transform: scale(1.1); background: white; }
+
+        /* Placeholder */
+        .preview-placeholder {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            display: block;
+        }
+        .preview-placeholder i {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* =========================
+           UPLOAD IMAGE
+        ========================= */
+        .image-section { margin-bottom: 10px; }
+        .hidden-file-input { display: none; }
+
+        .btn-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: all 0.3s;
+        }
+        .btn-upload:hover { border-color: var(--primary); color: var(--primary); background: #f8fafc; }
+
+        /* =========================
+           BOUTONS
+        ========================= */
+        .btn-submit {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 98, 51, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(0, 98, 51, 0.3); }
+        
+        .btn-cancel {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .btn-cancel:hover { color: var(--danger); }
+
+        /* =========================
+           FOOTER
+        ========================= */
+        .footer {
+            text-align: center; 
+            padding: 1.5rem 2rem; 
+            background: linear-gradient(90deg, #006233 0%, #006233 75%, #FFCD00 100%);
+            color: white; 
+            margin-top: auto; /* Pousse le footer en bas si le contenu est court */
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+        @media (max-width: 768px) {
+            .navbar { padding: 0.5rem 1rem; height: 60px; }
+            body { padding-top: 80px; } /* Ajustement mobile */
+            
+            .nav-links {
+                display: none;
+                flex-direction: column,
+                position: absolute,
+                top: 60px,
+                left: 0,
+                width: 100%,
+                background: linear-gradient(90deg, #006233 0%, #006233 75%, #FFCD00 100%);
+                padding: 10px 0,
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                z-index: 9999;
+            }
+            .nav-links.active { display: flex !important; }
+            .nav-toggle { display: block; }
+            
+            .title-preview-grid { grid-template-columns: 1fr; }
+            .preview-wrapper { height: 220px; }
+            .create-card { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <!-- Logo -->
+    <a href="/" class="nav-logo">
+        <i class="fa-solid fa-chart-line"></i> Edu
+    </a>
+
+    <!-- Mobile Toggle -->
+    <div class="nav-toggle" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars"></i>
+    </div>
+
+    <!-- Liens -->
+    <div class="nav-links" id="navLinks">
+        <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
+            <i class="fa-solid fa-house"></i>
+            <span data-i18n="menu_home">Accueil</span>
+        </a>
+
+        <a href="/blog" class="nav-link {% if '/blog' in request.path %}active{% endif %}">
+            <i class="fa-solid fa-newspaper"></i>
+            <span data-i18n="menu_blog">Blog</span>
+        </a>
+
+        {% if request.user.is_authenticated %}
+        <!-- Utilisateur connecté -->
+        <div class="dropdown">
+            <button type="button" class="nav-link dropdown-toggle" id="userDropdown">
+                {% if request.user.profile_image %}
+                    <img src="{{ request.user.profile_image.url }}" class="user-avatar-small" alt="Profil">
+                {% else %}
+                    <i class="fa-solid fa-user-circle" style="font-size:1.5rem;"></i>
+                {% endif %}
+                <span>{{ request.user.first_name }}</span>
+                <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
+            </button>
+
+            <div class="dropdown-menu" id="userDropdownMenu">
+                <a href="{% url 'profile' %}">
+                    <i class="fa-regular fa-id-card"></i> Mon Profil
+                </a>
+                      <a href="{% url 'dashboard' %}">
+            <i class="fa-solid fa-table-list"></i> Dashboard
+        </a>
+                <a href="{% url 'logout' %}">
+                    <i class="fa-solid fa-power-off text-danger"></i> Déconnexion
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <a href="{% url 'login' %}" class="nav-link">
+            <i class="fa-solid fa-user-circle"></i> Espace Personnel
+        </a>
+        {% endif %}
+
+        <!-- Langue -->
+        <button onclick="toggleLanguage()" class="btn-lang" id="lang-btn">🇲🇷</button>
+    </div>
+</nav>
+
+<!-- CONTENU PRINCIPAL -->
+<div class="create-card">
+    <div class="create-header">
+        <h1><i class="fa-solid fa-pen-nib"></i> Nouvel Article</h1>
+    </div>
+
+    <!-- FORMULAIRE -->
+    <form method="POST" action="{% url 'create_post' %}" enctype="multipart/form-data" id="postForm">
+        {% csrf_token %}
+    <!-- TITRE + PREVIEW (CÔTE À CÔTE) -->
+            <div class="title-preview-grid">
+                <!-- GAUCHE : CHAMP TITRE -->
+                <div class="form-group title-group">
+                    <label for="id_title" class="form-label">
+                        <i class="fa-solid fa-heading"></i> Titre de l'article
+                    </label>
+                    <input
+                        type="text"
+                        name="{{ form.title.name }}"
+                        id="{{ form.title.id_for_label }}"
+                        class="form-control"
+                        placeholder="Un titre accrocheur..."
+                        required
+                        value="{{ form.title.value|default:'' }}"
+                    >
+                    {% if form.title.errors %}
+                        <small style="color:var(--danger); margin-top:6px; display:block;">
+                            <i class="fa-solid fa-circle-exclamation"></i> {{ form.title.errors.0 }}
+                        </small>
+                    {% endif %}
+                </div>
+
+                <!-- DROITE : PREVIEW COMPACTE -->
+                <div class="preview-group">
+                    <label class="form-label" style="font-size:0.9rem;">
+                        <i class="fa-regular fa-image"></i> Aperçu image
+                    </label>
+
+                    <div class="preview-wrapper" id="preview-box">
+                        <!-- Image masquée par défaut -->
+                        <img id="image_preview" src="" alt="Aperçu">
+
+                        <!-- Bouton supprimer -->
+                        <i class="fa-solid fa-xmark btn-remove-preview" id="btn-remove" title="Retirer l'image"></i>
+
+                        <!-- Placeholder -->
+                        <div class="preview-placeholder" id="placeholder-content">
+                            <i class="fa-solid fa-image"></i>
+                            <span>Aperçu</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <!-- AJOUT: MENU DÉROULANT TYPE MÉDIA -->
+        <div class="form-group">
+            <label for="media_type" class="form-label">
+                <i class="fa-solid fa-layer-group"></i> Type de média
+            </label>
+            <select id="media_type_select" class="form-control" onchange="toggleMediaFields()">
+                <option value="image" selected>
+                    <i class="fa-regular fa-image"></i> Image
+                </option>
+                <option value="video">
+                    <i class="fa-brands fa-youtube"></i> Vidéo (Youtube)
+                </option>
+            </select>
+        </div>
+
+        <!-- WRAPPER SECTION IMAGE -->
+        <div id="media-section-image">
+        
+
+            <!-- UPLOAD IMAGE -->
+            <div class="form-group image-section">
+                <label for="id_image" class="form-label">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Image de couverture
+                </label>
+
+                <label for="id_image" class="btn-upload">
+                    <i class="fa-solid fa-upload"></i> Choisir une image depuis l'ordinateur
+                </label>
+
+                {{ form.image }}
+            </div>
+        </div>
+
+        <!-- SECTION VIDÉO (Déjà dans votre code) -->
+        <div id="media-section-video" class="media-section" style="display: none; margin-top: 20px;">
+            
+            <div class="form-group">
+                <label for="{{ form.video_url.id_for_label }}" class="form-label">
+                    <i class="fa-brands fa-youtube"></i> Lien Vidéo (URL)
+                </label>
+                <!-- INFO BULLE -->
+                <small style="display:block; margin-bottom:5px; color:var(--text-muted);">
+                    Collez le lien complet. Vous n'avez pas besoin de mettre 'https://'.
+                </small>
+                
+                <!-- MODIFICATION : type="text" au lieu de "url" -->
+                <input 
+                    type="text" 
+                    name="{{ form.video_url.name }}" 
+                    id="{{ form.video_url.id_for_label }}" 
+                    class="form-control" 
+                    placeholder="www.youtube.com/watch?v=..."
+                >
+                
+                {{ form.video_url.errors }}
+            </div>
+
+        </div>
+
+        <!-- CONTENU -->
+        <div class="form-group">
+            <label for="id_content" class="form-label">
+                <i class="fa-solid fa-align-left"></i> Contenu
+            </label>
+            {{ form.media }}
+            {{ form.content }}
+        </div>
+
+        <!-- SUBMIT -->
+        <button type="submit" class="btn-submit">
+            <i class="fa-solid fa-paper-plane"></i> Publier l'article
+        </button>
+    </form>
+
+    <!-- ANNULER -->
+    <a href="/blog/" class="btn-cancel">
+        <i class="fa-solid fa-arrow-left"></i> Annuler
+    </a>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <p>&copy; 2026 Ministère de l'Éducation - Gestion Éducative.</p>
+</footer>
+
+<!-- JAVASCRIPT -->
+<script>
+    // === 1. MENU MOBILE ===
+    function toggleMenu() {
+        const navLinks = document.getElementById('navLinks');
+        navLinks.classList.toggle('active');
+    }
+
+    // === 2. MENU DÉROULANT UTILISATEUR (Dropdown) ===
+    const dropdownToggle = document.getElementById('userDropdown');
+    const dropdownMenu = document.getElementById('userDropdownMenu');
+
+    if (dropdownToggle && dropdownMenu) {
+        dropdownToggle.addEventListener('click', function(e) {
+            e.stopPropagation(); // Empêche la fermeture immédiate
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // Fermer le menu si on clique ailleurs
+        window.addEventListener('click', function(e) {
+            if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+    }
+
+    // === 3. LOGIQUE DU MENU DÉROULANT IMAGE/VIDÉO ===
+    function toggleMediaFields() {
+        const select = document.getElementById('media_type_select');
+        const imageSection = document.getElementById('media-section-image');
+        const videoSection = document.getElementById('media-section-video');
+        
+        const choice = select.value;
+
+        if (choice === 'image') {
+            // Afficher Image, Masquer Vidéo
+            imageSection.style.display = 'block';
+            videoSection.style.display = 'none';
+            
+            // Petit effet d'animation d'apparition
+            imageSection.style.animation = 'fadeIn 0.5s ease';
+        } else if (choice === 'video') {
+            // Afficher Vidéo, Masquer Image
+            videoSection.style.display = 'block';
+            imageSection.style.display = 'none';
+            
+            // Petit effet d'animation d'apparition
+            videoSection.style.animation = 'fadeIn 0.5s ease';
+        }
+    }
+
+    // === 4. INITIALISATION DE TINYMCE ===
+    if (typeof tinymce !== 'undefined') {
+        tinymce.init({
+            selector: '#id_content',
+            height: 400,
+            width: '100%',
+            
+            plugins: [
+                'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'link', 
+                'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount', 'image'
+            ],
+
+            toolbar: 'undo redo | blocks fontfamily | bold italic underline strikethrough | link media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+            toolbar_mode: 'sliding',
+            branding: false,
+            content_style: "body {font-family: 'Inter', sans-serif; font-size: 16px;}",
+            skin: 'oxide',
+        });
+    }
+
+    // === 5. PREVIEW IMAGE ===
+    const fileInput = document.getElementById('id_image');
+    const previewImg = document.getElementById('image_preview');
+    const placeholder = document.getElementById('placeholder-content');
+    const removeBtn = document.getElementById('btn-remove');
+    const previewBox = document.getElementById('preview-box');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    previewImg.src = event.target.result;
+                    previewImg.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    removeBtn.style.display = 'flex';
+                    
+                    // Style quand image chargée
+                    previewBox.style.border = 'none';
+                    previewBox.style.background = '#000';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Fonction pour effacer l'image
+    function clearImage() {
+        if (fileInput) { fileInput.value = ''; }
+        previewImg.src = '';
+        previewImg.style.display = 'none';
+        placeholder.style.display = 'block';
+        removeBtn.style.display = 'none';
+        
+        // Remettre le style vide
+        previewBox.style.border = '2px dashed #cbd5e1';
+        previewBox.style.background = '#f8fafc';
+    }
+
+    // Attacher l'événement au bouton supprimer
+    if (removeBtn) {
+        removeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            clearImage();
+        });
+    }
+
+    // === 6. SOUMISSION FORMULAIRE ===
+    const formElement = document.getElementById('postForm');
+    if (formElement) {
+        formElement.addEventListener('submit', function() {
+            if (typeof tinymce !== 'undefined') {
+                tinymce.triggerSave();
+            }
+        });
+    }
+</script>
+</body>
+</html>

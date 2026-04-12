@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Script TinyMCE ajouté -->
+
+    <title>Dashboard Admin</title>
+    <style>
+/* =========================
+   VARIABLES
+========================= */
+:root {
+  --primary: #006233;
+  --primary-dark: #004d26;
+  --accent-yellow: #FFCD00;
+  --bg-sidebar: #1e293b;
+  --text-sidebar: #94a3b8;
+  --text-sidebar-hover: #ffffff;
+  --bg-body: #f1f5f9;
+  --white: #ffffff;
+  --text-main: #334155;
+  --border: #e2e8f0;
+  --success: #10b981;
+  --danger: #ce3838;
+  --warning: #f59e0b;
+}
+
+/* =========================
+   BASE
+========================= */
+body { 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Inter', sans-serif; 
+    background-color: var(--bg-body); 
+    color: var(--text-main); 
+    min-height: 100vh;
+    overflow-x: hidden; 
+}
+body.lang-ar { font-family: 'Cairo', sans-serif; }
+
+/* =========================
+   LAYOUT DÉFINITIF
+========================= */
+
+/* 1. Le Bandeau Mauritanie (Top Bar) */
+.mauritania-banner {
+    display: flex;
+    justify-content: space-between; /* GAUCHE | MILIEU | DROITE */
+    align-items: center;
+    
+    position: fixed; /* FIXE tout en haut */
+    top: 0; 
+    left: 0;
+    width: 100%; /* Prend toute la largeur */
+    height: 70px; 
+    z-index: 9999; 
+    
+    background: linear-gradient(90deg, #006233 0%, #006233 75%, #FFCD00 100%);
+    color: white;
+    padding: 0 40px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Le contenu central (Le texte) */
+.banner-content {
+    flex: 1; 
+    text-align: center; /* Centre le texte */
+}
+.banner-content h2 { margin: 0; font-size: 1.4rem; font-weight: 800; text-transform: uppercase; }
+.banner-content p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+
+/* Le Logo (Droite) */
+.banner-logo-right {
+    flex: 0 0 auto; 
+}
+.banner-logo-right img { height: 50px; width: auto; }
+
+/* Le Logo (Gauche - Classe manquante) */
+.banner-logo-left {
+    flex: 0 0 auto; 
+}
+.banner-logo-left img { height: 50px; width: auto; }
+
+/* 2. La Sidebar (Gauche) */
+.sidebar {
+    width: 260px;
+    background: var(--bg-sidebar);
+    color: var(--text-sidebar);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: calc(100% - 70px);
+    top: 70px; 
+    left: 0;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: all 0.3s;
+}
+
+/* 3. Le Contenu Principal (Droite) */
+.main-content {
+    width: calc(100% - 260px);
+    margin-left: 260px;
+    margin-top: 70px; 
+    padding: 30px;
+    overflow-x: hidden;
+    transition: margin 0.3s, width 0.3s;
+}
+
+/* Mobile */
+.mobile-toggle { display: none; position: fixed; top: 80px; left: 15px; z-index: 3000; background: var(--bg-sidebar); color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+@media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main-content { width: 100%; margin-left: 0; margin-top: 0; }
+    .mobile-toggle { display: block; }
+    .sidebar.active { transform: translateX(0); }
+}
+
+/* =========================
+   ELEMENTS BANDEAU (User Dropdown)
+========================= */
+.banner-user-dropdown { position: relative; display: flex; align-items: center; }
+.user-trigger { display: flex; align-items: center; gap: 10px; padding: 8px 15px; background: rgba(255,255,255,0.15); border-radius: 30px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3); transition: all 0.2s; color: white; margin-right: 20px; }
+.user-trigger:hover { background: rgba(255,255,255,0.3); }
+.banner-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid white; }
+.user-name { font-weight: 600; font-size: 0.95rem; }
+.user-menu { position: absolute; top: 110%; right: 0; width: 220px; background: white; color: #333; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 3000; padding: 10px 0; animation: fadeIn 0.2s ease; }
+.user-menu.show { display: flex; }
+.user-menu a { padding: 12px 20px; text-decoration: none; color: #333; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+.user-menu a:hover { background: #f1f5f9; color: var(--primary); }
+.user-menu a.logout-link { border-top: 1px solid #e2e8f0; margin-top: 5px; color: #ef4444; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =========================
+   ELEMENTS SIDEBAR
+========================= */
+.sidebar-header { padding: 20px; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: center; }
+.sidebar-logo-icon { display: flex; align-items: center; gap: 10px; color: white; font-size: 1.2rem; font-weight: bold; text-decoration: none; }
+.sidebar-logo-icon i { color: #FFCD00; font-size: 1.5rem; }
+.sidebar-menu { padding: 20px 0; list-style: none; margin: 0; }
+.sidebar-menu li a { display: flex; align-items: center; padding: 12px 25px; color: var(--text-sidebar); text-decoration: none; transition: 0.2s; border-left: 4px solid transparent; font-size: 0.95rem; }
+.sidebar-menu li a:hover, .sidebar-menu li a.active { background: #334155; color: var(--text-sidebar-hover); border-left-color: var(--primary); }
+.sidebar-menu li a i { width: 25px; }
+.sidebar-footer { padding: 20px; margin-top: auto; border-top: 1px solid #334155; }
+
+/* =========================
+   SOUS-MENU (Sidebar Dropdown)
+========================= */
+.sidebar-submenu {
+    display: none;
+    padding-left: 0;
+    margin-top: 5px;
+    list-style: none;
+    background-color: #111827;
+    border-radius: 8px;
+    overflow: hidden;
+    max-height: 0;
+}
+.sidebar-submenu.show { display: block; max-height: 500px; animation: slideDown 0.3s ease; }
+.sidebar-submenu li a { padding: 10px 25px 10px 35px; color: #cbd5e1; font-size: 0.9rem; border-left: 2px solid transparent; }
+.sidebar-submenu li a:hover { background: #334155; color: white; border-left-color: var(--primary); }
+.sidebar-submenu li a i { width: 20px; color: #94a3b8; }
+
+/* Flèche */
+.has-submenu { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+.has-submenu span { flex: 1; } /* Empêche le texte de s'étirer */
+.chevron-icon { font-size: 0.7rem; transition: transform 0.3s; }
+.sidebar-submenu.show ~ .has-submenu .chevron-icon { transform: rotate(180deg); }
+
+@keyframes slideDown { from { max-height: 0; opacity: 0; } to { max-height: 500px; opacity: 1; } }
+
+/* =========================
+   GLOBAL OVERVIEW (Haut de page)
+========================= */
+.global-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px; /* Espace avec les tableaux */
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+.stat-card.large {
+    display: flex;
+    flex-direction: column,
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    border-top: 4px solid var(--primary); /* Bordure en haut */
+    position: relative;
+    overflow: hidden;
+}
+.stat-card.large:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+.stat-card.large.present { border-top-color: var(--success); }
+.stat-card.large.absent { border-top-color: var(--danger); }
+.stat-card.large.active-forms { border-top-color: var(--warning); }
+
+.stat-card.large .stat-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+.stat-card.large .stat-info h3 { margin: 0; font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
+.stat-card.large .stat-info p { margin: 0; font-size: 0.85rem; color: var(--text-sidebar); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-card.large .stat-info i { font-size: 1.5rem; color: var(--primary); opacity: 0.5; }
+.stat-card.large .stat-icon {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    font-size: 4rem;
+    opacity: 0.05;
+}
+@media (max-width: 768px) { .global-overview { grid-template-columns: 1fr; } }
+
+/* =========================
+   TABLEAU & FILTRES (Contenu)
+========================= */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.stat-card { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--primary); }
+.stat-card.total { border-left-color: var(--primary); } .stat-card.present { border-left-color: var(--success); } .stat-card.absent { border-left-color: var(--danger); } .stat-card.late { border-left-color: var(--warning); }
+.stat-info h3 { margin: 0; font-size: 2rem; font-weight: 700; color: var(--text-main); }
+.stat-info p { margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-sidebar); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-icon { font-size: 2.5rem; opacity: 0.15; }
+
+.card { background: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); margin-bottom: 50px; border: 1px solid var(--border); }
+.card h2 { margin-top: 0; color: var(--text-main); font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px; }
+.search-container { display: flex; gap: 10px; margin-bottom: 20px; position: relative; }
+.search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+html[dir="rtl"] .search-icon { left: auto; right: 15px; }
+input[type="text"] { width: 100%; padding: 12px 45px 12px 12px; border: 1px solid var(--border); border-radius: 8px; }
+.btn-search { background: var(--primary); color: white; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; }
+.filter-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.filter-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
+
+.table-wrapper { width: 100%; overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; min-width: 800px; background: white; }
+th { background: #f8fafc; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid var(--border); }
+td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+.actions-cell { display: flex; gap: 8px; }
+.btn-action { width: 32px; height: 32px; border-radius: 6px; border: none; cursor: pointer; color: white; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+.btn-edit { background: #f59e0b; } .btn-delete { background: #ef4444; }
+
+.pagination { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+.pagination a, .pagination span { padding: 8px 15px; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; }
+.pagination .current { background: var(--primary); color: white; }
+.btn-lang { background: rgba(255,255,255,0.1); border: none; color: white; width: 100%; padding: 10px; border-radius: 5px; cursor: pointer; }
+   
+/* =========================
+   GRAPHIQUES (Plotly)
+========================= */
+.chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+    margin-bottom: 30px;
+    /* Assure que le graphique ne dépasse pas */
+    overflow: hidden; 
+}
+.chart-container.full-width {
+    /* Pour la courbe d'évolution, on peut prendre plus de place */
+    width: 100%;
+}
+/* Adapter la taille de Plotly */
+.js-plotly-plot {
+    width: 100% !important;
+    height: 300px !important;
+}
+
+/* =========================
+   SECTION BIENVENUE
+========================= */
+#welcome-section {
+    margin-bottom: 30px;
+    display: block; /* Visible au début, masqué par le JS */
+}
+
+.welcome-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 20px rgba(118, 75, 162, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    animation: slideDown 0.5s ease;
+}
+.welcome-card h1 { margin: 0 0 5px 0; font-size: 1.8rem; }
+.welcome-card p { margin: 0; opacity: 0.9; font-size: 1.1rem; }
+.welcome-icon {
+    background: rgba(255,255,255,0.2);
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* =========================
+   ÉTAT VIDE (Empty State)
+========================= */
+#empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    color: var(--text-sidebar);
+}
+.empty-illustration {
+    font-size: 4rem;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+}
+#empty-state h2 { margin: 0; color: var(--text-main); }
+#empty-state p { margin: 10px auto; max-width: 400px; color: var(--text-sidebar); }
+</style>
+</head>
+<body>
+    <!-- BOUTON MOBILE -->
+    <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- SIDEBAR GAUCHE -->
+    <aside class="sidebar">
+    <!-- 1. HEADER -->
+    <div class="sidebar-header">
+        <a href="/" class="sidebar-logo-icon">
+            <i class="fa-solid fa-table-list"></i>
+            <span>Tableau de Board</span>
+        </a>
+    </div>
+        
+    <!-- 2. MENU PRINCIPAL -->
+    <ul class="sidebar-menu">
+        
+        <!-- GROUPE 1 : LES FORMULAIRES (AFFICHE LE TABLEAU) -->
+        <li>
+            <a href="#" onclick="toggleSubmenu('submenu-dashboard')" class="has-submenu">
+                <i class="fa-solid fa-table-list"></i> 
+                <span>Tableaux</span>
+                <i class="fa-solid fa-chevron-down chevron-icon"></i>
+            </a>
+
+            <!-- SOUS-MENU -->
+            <ul id="submenu-dashboard" class="sidebar-submenu">
+                {% for form in forms_list %}
+                <li>
+                    <!-- IMPORTANT : C'est ici qu'on affiche le tableau principal -->
+                    <!-- On charge les données du formulaire via l'API -->
+                    <a href="#" onclick="loadDashboardData('{{ form.uid }}'); return false;">
+                        <i class="fa-solid fa-table"></i> {{ form.title }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </li>
+
+        <!-- GROUPE 2 : ACCUEIL (Réinitialise) -->
+        <li>
+            <a href="/"  style="color: var(--warning); font-weight: 600;">
+                <i class="fa-solid fa-chart-pie"></i> 
+                <span>Accueil</span>
+            </a>
+        </li>
+
+        <!-- GROUPE 3 : NOUVEL ARTICLE (AFFICHE LE FORMULAIRE BLOG) -->
+        <!-- On force le lien à ne rien faire d'autre que charger le formulaire JS -->
+        <li>
+            <a href="#" onclick="loadCreateForm(); return false;" style="color: var(--warning); font-weight: 600;">
+                <i class="fa-solid fa-pen-nib"></i> 
+                <span>Nouvel Article</span>
+            </a>
+        </li>
+<!-- GROUPE 3.5 : LISTE DES BLOGS (AJAX) -->
+<!-- Ajoutez ceci dans la sidebar -->
+<li>
+    <a href="#" onclick="loadBlogList(); return false;" style="color: var(--warning); font-weight: 600;">
+        <i class="fa-solid fa-list"></i> 
+        <span>Liste des Articles</span>
+    </a>
+</li>
+        <!-- ADMIN -->
+        {% if can_edit %}
+            <li>
+                <a href="/admin">
+                    <i class="fa-solid fa-shield"></i> 
+                    <span>Admin</span>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+
+    <!-- 3. FOOTER -->
+    <div class="sidebar-footer">
+        <button onclick="toggleLanguage()" class="btn-lang">
+            🌍 <span id="lang-btn-text">Ar</span>
+        </button>
+    </div>
+</aside>
+
+    <!-- CONTENU DROITE -->
+    <main class="main-content">
+        
+        <!-- BANDEAU OFFICIEL (Layout 3 Parties) -->
+        <div class="mauritania-banner">
+            
+            <!-- 1. LOGO (DÉPLACÉ À GAUCHE) -->
+            <div class="banner-logo-left">
+                <img src="https://cdn-icons-png.flaticon.com/512/ministry/50306/ministry-icon.png" alt="Logo Ministère">
+            </div>
+
+            <!-- 2. MILIEU (Texte) -->
+            <div class="banner-content">
+                <h2>Ministère de l'Éducation</h2>
+                <p>Système de Suivi des Absences</p>
+            </div>
+            
+            <!-- 3. DROITE (Menu Utilisateur) -->
+            {% if request.user.is_authenticated %}
+            <div class="banner-user-dropdown">
+                <div class="user-trigger" onclick="toggleUserMenu()">
+                    {% if request.user.profile_image %}
+                        <img src="{{ request.user.profile_image.url }}" class="banner-avatar" alt="User">
+                    {% else %}
+                        <div class="banner-avatar" style="background:white; color:#006233; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                    {% endif %}
+                    <span class="user-name">{{ request.user.first_name }}</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size:0.8em;"></i>
+                </div>
+
+                <!-- LE MENU DÉROULANT -->
+                <div class="user-menu" id="userMenu">
+                    <a href="/personnel"><i class="fa-solid fa-users-gear" style="color:#f59e0b;"></i> <span>Gestion des Personnels</span></a>
+                    <a href="/profile"><i class="fa-solid fa-id-card" style="color:#4f46e5;"></i> <span>Mon Profil</span></a>
+                    <a href="{% url 'logout' %}" class="logout-link"><i class="fa-solid fa-power-off"></i> <span>Déconnexion</span></a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <!-- === NOUVEAU : SECTION BIENVENUE (Seulement au chargement) === -->
+        <div id="welcome-section">
+            <div class="welcome-card">
+                <div class="welcome-icon">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <h1>Bienvenue, {{ request.user.first_name }} 👋</h1>
+                <p>Sélectionnez un formulaire dans le menu de gauche pour voir les détails et les graphiques.</p>
+            </div>
+        </div>
+        <!-- =========================
+           VUE D'ENSEMBLE GLOBALE (Haut de page)
+           ========================= -->
+        <div class="global-overview">
+            <!-- Carte 1 : Total Réponses -->
+            <div class="stat-card large">
+                <div class="stat-info">
+                    <i class="fa-solid fa-file-lines icon-left"></i>
+                    <div>
+                        <h3>{{ global_stats.total_records }}</h3>
+                        <p>Total Réponses</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chart-simple stat-icon" style="color:var(--primary)"></i>
+            </div>
+
+            <!-- Carte 2 : Total Présents -->
+            <div class="stat-card large present">
+                <div class="stat-info">
+                    <i class="fa-solid fa-user-check icon-left"></i>
+                    <div>
+                        <h3>{{ global_stats.total_present }}</h3>
+                        <p>Global Présents</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-check-circle stat-icon" style="color:var(--success)"></i>
+            </div>
+
+            <!-- Carte 3 : Total Absences -->
+            <div class="stat-card large absent">
+                <div class="stat-info">
+                    <i class="fa-solid fa-user-slash icon-left"></i>
+                    <div>
+                        <h3>{{ global_stats.total_absences }}</h3>
+                        <p>Global Absences</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-circle-xmark stat-icon" style="color:var(--danger)"></i>
+            </div>
+
+            <!-- Carte 4 : Nombre de Formulaires Actifs -->
+            <div class="stat-card large active-forms">
+                <div class="stat-info">
+                    <i class="fa-solid fa-layer-group icon-left"></i>
+                    <div>
+                        <h3>{{ global_stats.total_forms }}</h3>
+                        <p>Formulaires Actifs</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-list-ul stat-icon" style="color:var(--warning)"></i>
+            </div>
+        </div>
+   <!-- CONTENEUR PRINCIPAL -->
+        <div id="dashboard-container">
+            <!-- État vide : S'affiche quand aucun tableau n'est chargé -->
+            <div id="empty-state">
+                <div class="empty-illustration">
+                    <i class="fa-solid fa-table-cells-large"></i>
+                </div>
+                <h2>Prêt à analyser ?</h2>
+                <p>Les données s'afficheront ici dès que vous cliquerez sur un formulaire dans le menu.</p>
+            </div>
+           
+            <!-- IMPORTANT : PAS D'INCLUDE ICI. LE JS INJECTERA LE CONTENU -->
+        </div>
+
+    </main>
+
+   <script>
+/* =====================================================
+   LANGUE
+===================================================== */
+const translations = {
+    fr: {
+        stat_total: "Total", stat_present: "Présents",
+        stat_absent: "Absents", stat_late: "Retards",
+        menu_dashboard: "Tableau", menu_home: "Accueil",
+        menu_blog: "Blog", btn_text: "Ar"
+    },
+    ar: {
+        stat_total: "إجابات", stat_present: "حاضر",
+        stat_absent: "غائب", stat_late: "تأخر",
+        menu_dashboard: "الجدول", menu_home: "الرئيسية",
+        menu_blog: "المدونة", btn_text: "Fr"
+    }
+};
+
+let currentLang = 'fr';
+
+function toggleLanguage() {
+    currentLang = currentLang === 'fr' ? 'ar' : 'fr';
+    const html = document.documentElement;
+    const body = document.body;
+
+    html.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+    html.setAttribute('lang', currentLang);
+    body.classList.toggle('lang-ar', currentLang === 'ar');
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (translations[currentLang][key]) {
+            el.innerText = translations[currentLang][key];
+        }
+    });
+
+    const btnText = document.getElementById('lang-btn-text');
+    if (btnText) btnText.innerText = translations[currentLang].btn_text;
+}
+
+/* =====================================================
+   MENUS (SIDEBAR + USER + MOBILE)
+===================================================== */
+function toggleMenu() {
+    document.getElementById('navLinks')?.classList.toggle('active');
+}
+
+function toggleUserMenu() {
+    document.getElementById('userMenu')?.classList.toggle('show');
+}
+
+function toggleSubmenu(id) {
+    const submenu = document.getElementById(id);
+    if (!submenu) return;
+
+    submenu.classList.toggle('show');
+
+    document.querySelectorAll('.sidebar-submenu').forEach(menu => {
+        if (menu !== submenu) menu.classList.remove('show');
+    });
+}
+
+window.addEventListener('click', e => {
+    const dropdown = document.querySelector('.banner-user-dropdown');
+    const menu = document.getElementById('userMenu');
+    if (dropdown && menu && !dropdown.contains(e.target)) {
+        menu.classList.remove('show');
+    }
+});
+
+/* =====================================================
+   AJAX DASHBOARD / BLOG
+===================================================== */
+function loadDashboardData(uid) {
+    const c = document.getElementById('dashboard-container');
+    document.getElementById('welcome-section')?.style.setProperty('display', 'none');
+
+    c.innerHTML = `<div class="loader"><i class="fa fa-spinner fa-spin"></i></div>`;
+
+    fetch(`/api/dashboard-data/?uid=${uid}`)
+        .then(r => r.json())
+        .then(d => c.innerHTML = d.html || '')
+        .catch(() => c.innerHTML = `<div class="error">Erreur de chargement</div>`);
+}
+
+function loadBlogList(page = 1) {
+    const c = document.getElementById('dashboard-container');
+    document.getElementById('welcome-section')?.style.setProperty('display', 'none');
+
+    c.innerHTML = `<div class="loader"><i class="fa fa-spinner fa-spin"></i></div>`;
+
+    fetch(`/blog/render-list/?page=${page}`)
+        .then(r => r.json())
+        .then(d => c.innerHTML = d.html)
+        .catch(() => c.innerHTML = `<div class="error">Erreur chargement articles</div>`);
+}
+
+function loadCreateForm() {
+    const c = document.getElementById('dashboard-container');
+    document.getElementById('welcome-section')?.style.setProperty('display', 'none');
+
+    c.innerHTML = `<div class="loader"><i class="fa fa-spinner fa-spin"></i></div>`;
+
+    fetch('/blog/render-form/')
+        .then(r => r.json())
+        .then(d => {
+            c.innerHTML = d.html;
+            initBlogForm();
+        })
+        .catch(() => c.innerHTML = `<div class="error">Erreur formulaire</div>`);
+}
+
+/* =====================================================
+   BLOG FORM (IMAGE / VIDEO / TINYMCE)
+===================================================== */
+function initBlogForm() {
+
+    /* --- MEDIA TOGGLE --- */
+    window.toggleMediaFields = function () {
+        const s = document.getElementById('media_type_select');
+        const img = document.getElementById('media-section-image');
+        const vid = document.getElementById('media-section-video');
+        if (!s) return;
+
+        img.style.display = s.value === 'image' ? 'block' : 'none';
+        vid.style.display = s.value === 'video' ? 'block' : 'none';
+    };
+    // === 4. INITIALISATION DE TINYMCE ===
+tinymce.init({
+    selector: '#id_content_create',
+    height: 400,
+    width: '100%',
+    plugins: 'link image media lists code table preview',
+    toolbar: 'undo redo | bold italic underline | forecolor backcolor | alignleft aligncenter alignright | bullist numlist | link image media | code preview',
+    content_style: "body { font-family: 'Inter', sans-serif; font-size: 16px; }",
+});
+
+
+
+    /* --- IMAGE PREVIEW --- */
+    const input = document.getElementById('id_image');
+    const img = document.getElementById('image_preview');
+    const placeholder = document.getElementById('placeholder-content');
+    const btn = document.getElementById('btn-remove');
+    const box = document.getElementById('preview-box');
+
+    if (input) {
+        input.onchange = () => {
+            const f = input.files[0];
+            if (!f || !f.type.startsWith('image/')) return;
+
+            const r = new FileReader();
+            r.onload = e => {
+                img.src = e.target.result;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+                btn.style.display = 'flex';
+                box.style.border = 'none';
+                box.style.background = '#000';
+            };
+            r.readAsDataURL(f);
+        };
+    }
+
+    if (btn) {
+        btn.onclick = e => {
+            e.preventDefault();
+            input.value = '';
+            img.src = '';
+            img.style.display = 'none';
+            placeholder.style.display = 'block';
+            btn.style.display = 'none';
+            box.style.border = '2px dashed #cbd5e1';
+            box.style.background = '#f8fafc';
+        };
+    }
+
+
+    /* --- SUBMIT --- */
+    document.getElementById('postForm')?.addEventListener('submit', () => {
+        if (typeof tinymce !== 'undefined') tinymce.triggerSave();
+    });
+}
+</script>
+ <script src="https://cdn.tiny.cloud/1/8avjfrscse6wh3c2l33d0db2j6bp2htag2ryk7n2fmscqec8/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+</body>
+</html>

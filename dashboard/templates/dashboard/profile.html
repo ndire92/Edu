@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - Edu Dashboard</title>
+    
+    <!-- Polices & Icônes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* =========================
+           VARIABLES (Cohérence Dashboard)
+        ========================= */
+        :root {
+            --primary: #006233;
+            --primary-dark: #004d26;
+            --accent-yellow: #FFCD00;
+            --bg-soft: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* =========================
+           CARTE DE PROFIL
+        ========================= */
+        .profile-container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            text-align: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            border-top: 6px solid var(--primary);
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* En-tête : Nom + Badge */
+        .profile-header {
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0;
+        }
+        .role-badge {
+            display: inline-block;
+            background: #e0e7ff;
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(79, 70, 229, 0.1);
+        }
+
+        /* =========================
+           AVATAR GRAND
+        ========================= */
+        .avatar-wrapper {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            margin: 0 auto -50px; /* Chevauchement sur la bordure supérieure */
+            background: var(--bg-soft);
+            position: relative;
+            z-index: 10;
+        }
+        .avatar-wrapper img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        /* Icône par défaut (Pas d'image) */
+        .avatar-icon {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #cbd5e1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        /* =========================
+           GRILLE D'INFOS (Remplace Tableau)
+        ========================= */
+        .info-grid {
+            display: grid;
+            /* 2 Colonnes sur Desktop */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 40px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-value {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-main);
+            word-break: break-all;
+        }
+
+        /* =========================
+           BOUTONS D'ACTION
+        ========================= */
+        .actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-action {
+            padding: 14px 30px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 50%; /* Prend la moitié de l'espace */
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .profile-card { padding: 30px 20px; margin: 10px; }
+            .info-grid { grid-template-columns: 1fr; text-align: center; }
+            .actions { flex-direction: column; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="profile-container">
+        <div class="profile-card">
+            
+            <!-- 1. AVATAR GRAND -->
+            <div class="avatar-wrapper">
+                {% if user.profile_image %}
+                    <img src="{{ user.profile_image.url }}" alt="Avatar">
+                {% else %}
+                    <div class="avatar-icon">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- 2. HEADER (Nom + Rôle) -->
+            <div class="profile-header">
+                <h1 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h1>
+                
+                <!-- Badge Rôle -->
+                <div class="role-badge">
+                    <i class="fa-solid fa-briefcase"></i> {{ user.role }}
+                </div>
+            </div>
+
+            <!-- 3. GRILLE D'INFOS (Remplace Tableau) -->
+            <div class="info-grid">
+                
+                <!-- Nom -->
+                <div class="info-item">
+                    <div class="info-label"><i class="fa-solid fa-user"></i> Nom</div>
+                    <div class="info-value">{{ user.last_name }}</div>
+                </div>
+
+                <!-- Prénom -->
+                <div class="info-item">
+                    <div class="info-label"><i class="fa-solid fa-user-tag"></i> Prénom</div>
+                    <div class="info-value">{{ user.first_name }}</div>
+                </div>
+
+                <!-- Email -->
+                <div class="info-item">
+                    <div class="info-label"><i class="fa-solid fa-envelope"></i> Email</div>
+                    <div class="info-value">{{ user.email }}</div>
+                </div>
+
+                <!-- Téléphone -->
+                <div class="info-item">
+                    <div class="info-label"><i class="fa-solid fa-phone"></i> Téléphone</div>
+                    <div class="info-value">{{ user.phone }}</div>
+                </div>
+
+                <!-- Adresse -->
+                <div class="info-item" style="grid-column: 1 / -1;"> <!-- Prend toute la largeur -->
+                    <div class="info-label"><i class="fa-solid fa-location-dot"></i> Adresse</div>
+                    <div class="info-value">{{ user.address }}</div>
+                </div>
+
+                <!-- Nom d'utilisateur -->
+                <div class="info-item">
+                    <div class="info-label"><i class="fa-solid fa-at"></i> Nom d'utilisateur</div>
+                    <div class="info-value">{{ user.username }}</div>
+                </div>
+
+                <!-- Date d'inscription (Optionnel) -->
+                <div class="info-item">
+                    <div class="info-label"><i class="fa-solid fa-calendar-check"></i> Statut</div>
+                    <div class="info-value" style="color:var(--success); font-weight:600;">Actif</div>
+                </div>
+            </div>
+
+            <!-- 4. BOUTONS D'ACTION -->
+            <div class="actions">
+                <!-- Modifier -->
+                <a href="{% url 'edit_profile' %}" class="btn-action btn-primary">
+                    <i class="fa-solid fa-pen-to-square"></i> Modifier mon profil
+                </a>
+
+                <!-- Supprimer -->
+                <form method="POST" action="{% url 'delete_account' %}" style="margin:0; width:100%;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-action btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.');">
+                        <i class="fa-solid fa-trash-can"></i> Supprimer le compte
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

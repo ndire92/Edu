@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Vidéos</h1>
+
+<div class="video-grid">
+    {% for post in videos %}
+        <div class="video-card">
+            <a href="{% url 'video_detail' post.slug %}">
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.created_at|date:"d M Y" }}</p>
+            </a>
+        </div>
+    {% empty %}
+        <p>Aucune vidéo.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

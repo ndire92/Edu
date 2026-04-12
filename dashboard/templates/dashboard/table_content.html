@@ -1,0 +1,109 @@
+<!-- dashboard/table_content.html -->
+{% load dashboard_tags %}
+
+{% for table in all_tables %}
+<div class="card">
+    <!-- ===== RECHERCHE ===== -->
+    <form method="GET" action="" class="search-container">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" name="q" placeholder="Rechercher..." value="{{ query }}">
+        <button type="submit" class="btn-search">Filtrer</button>
+        <input type="hidden" name="filter_month" value="{{ current_month }}">
+        <input type="hidden" name="filter_teacher" value="{{ current_teacher }}">
+        <input type="hidden" name="filter_type" value="{{ current_type }}">
+    </form>
+
+    <!-- ===== FILTRES ===== -->
+    <form method="GET" action="" class="filter-bar">
+        <input type="hidden" name="q" value="{{ query }}">
+        <input type="hidden" name="filter_month" value="{{ current_month }}">
+        <input type="hidden" name="filter_teacher" value="{{ current_teacher }}">
+        <input type="hidden" name="filter_type" value="{{ current_type }}">
+
+        <div class="filter-group">
+            <select name="filter_month" onchange="this.form.submit()">
+                <option value="">Mois</option>
+                {% for m in table.available_months %}
+                    <option value="{{ m }}" {% if m == current_month %}selected{% endif %}>{{ m }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <select name="filter_teacher" onchange="this.form.submit()">
+                <option value="">Enseignant</option>
+                {% for t in table.available_teachers %}
+                    <option value="{{ t }}" {% if t == current_teacher %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <select name="filter_type" onchange="this.form.submit()">
+                <option value="">Statut</option>
+                <option value="P" {% if 'P' in current_type %}selected{% endif %}>Présent</option>
+                <option value="A" {% if 'A' in current_type %}selected{% endif %}>Absent</option>
+                <option value="R" {% if 'R' in current_type %}selected{% endif %}>Retard</option>
+            </select>
+        </div>
+
+        <a href="?" class="btn-reset">Reset</a>
+    </form>
+
+    <!-- ===== TABLEAU ===== -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    {% for header in table.headers %}
+                        <th>{{ header }}</th>
+                    {% endfor %}
+
+                   
+                        <th>Actions</th>
+                   
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in table.page_obj %}
+                <tr>
+                  {% for header in table.headers %}
+                    <td>{{ row|get_item:header }}</td>
+                {% endfor %}
+
+                 {% if request.user.role == 'Directeur' or request.user.role == 'Administrateur' or request.user.is_superuser %}
+     
+                    <td class="actions-cell">
+                        <a href="{% url 'edit_record' row.kobo_id %}" class="btn-action btn-edit" title="Modifier">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <a href="{% url 'delete_record' row.kobo_id %}" class="btn-action btn-delete" title="Supprimer"
+                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette ligne ?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{{ table.headers|length|add:can_edit|yesno:'1,0' }}">Aucune donnée trouvée.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ===== PAGINATION ===== -->
+    {% if table.page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if table.page_obj.has_previous %}
+            <a href="?page={{ table.page_obj.previous_page_number }}&q={{ query }}&filter_month={{ current_month }}&filter_teacher={{ current_teacher }}&filter_type={{ current_type }}">Précédent</a>
+        {% endif %}
+        <span class="current">Page {{ table.page_obj.number }}</span>
+        {% if table.page_obj.has_next %}
+            <a href="?page={{ table.page_obj.next_page_number }}&q={{ query }}&filter_month={{ current_month }}&filter_teacher={{ current_teacher }}&filter_type={{ current_type }}">Suivant</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endfor %}

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier la Donnée - Edu Dashboard</title>
+    
+    <!-- Polices & Icônes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* =========================
+           VARIABLES (Cohérence Dashboard)
+        ========================= */
+        :root {
+            --primary: #006233;
+            --primary-dark: #004d26;
+            --secondary: #64748b;
+            --bg-soft: #f8fafc;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* =========================
+           CONTENEUR CARTE
+        ========================= */
+        .edit-container {
+            width: 100%;
+            max-width: 900px; /* Largeur confortable pour éditer */
+        }
+
+        .edit-card {
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            padding: 40px;
+            border-top: 5px solid var(--primary); /* Bordure supérieure identitaire */
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================
+           HEADER (Titre & ID)
+        ========================= */
+        .edit-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+        }
+        .edit-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .edit-header h1 i { color: var(--primary); }
+
+        /* ID Kobo Badge */
+        .kobo-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #e0e7ff;
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace; /* Police style code */
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        .kobo-badge i { margin-right: 8px; }
+
+        /* =========================
+           FORMULAIRE (Champs)
+        ========================= */
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group label i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        /* Inputs / Textarea */
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: var(--text-main);
+            background: var(--bg-soft);
+            transition: all 0.3s ease;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        /* Focus Actif */
+        .form-control:focus {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Textarea spécifique */
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           BOUTONS (Action)
+        ========================= */
+        .actions {
+            display: flex;
+            gap: 20px;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Bouton Enregistrer (Primary) */
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Bouton Annuler (Secondary) */
+        .btn-cancel {
+            background: transparent;
+            color: var(--text-muted);
+            border: 2px solid var(--border);
+        }
+        .btn-cancel:hover {
+            border-color: var(--text-muted);
+            color: var(--danger);
+            background: #fff1f2;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+        @media (max-width: 768px) {
+            .edit-card { padding: 30px 20px; box-shadow: none; }
+            .actions { flex-direction: column; }
+            .btn { width: 100%; }
+            .kobo-badge { font-size: 0.8rem; padding: 6px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="edit-container">
+        <div class="edit-card">
+            
+            <!-- HEADER : Titre et ID Kobo -->
+            <div class="edit-header">
+                <h1>
+                    <i class="fa-solid fa-pen-to-square"></i> 
+                    Modifier la Donnée
+                </h1>
+                
+                <!-- ID Kobo en badge style code -->
+                <div class="kobo-badge">
+                    <i class="fa-solid fa-fingerprint"></i> 
+                    ID : {{ kobo_id }}
+                </div>
+            </div>
+
+            <!-- FORMULAIRE -->
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- BOUCLE SUR LES DONNÉES (Logique Input vs Textarea) -->
+                {% for key, value in data.items %}
+                    <div class="form-group">
+                        <!-- Label avec Icône générique (Clé) -->
+                        <label for="{{ key }}">
+                            <i class="fa-solid fa-key"></i> {{ key }}
+                        </label>
+
+                        <!-- LOGIQUE : Si le texte est long, Textarea. Sinon, Input -->
+                        {% if value|length > 100 %}
+                            <textarea name="{{ key }}" id="{{ key }}" class="form-control" rows="5">{{ value }}</textarea>
+                        {% else %}
+                            <input type="text" name="{{ key }}" id="{{ key }}" value="{{ value }}" class="form-control">
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <!-- ACTIONS : Boutons -->
+                <div class="actions">
+                    <button type="submit" class="btn btn-save">
+                        <i class="fa-solid fa-save"></i> Enregistrer les modifications
+                    </button>
+                    
+                    <a href="/" class="btn btn-cancel">
+                        <i class="fa-solid fa-xmark"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
