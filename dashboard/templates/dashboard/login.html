@@ -1,15 +1,10 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connexion - Edu Dashboard</title>
-  
-  <!-- Polices & Icônes -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% extends "base.html" %}
+{% load i18n %}
 
-  <style>
+{% block title %}{% trans "Connexion - Edu Dashboard" %}{% endblock %}
+
+{% block content %}
+<style>
     /* =========================
        VARIABLES & RESET
     ========================= */
@@ -25,31 +20,27 @@
       --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
+    /* On cible seulement la page de connexion pour ne pas casser le reste du site */
     body {
       font-family: 'Inter', sans-serif;
       /* Fond avec motif subtil pour plus de profondeur */
       background-color: #f1f5f9;
       background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
       background-size: 20px 20px;
+    }
+
+    main.container {
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      margin: 0;
+      width: 100%;
       padding: 20px;
     }
 
-    /* =========================
-       CARTE DE CONNEXION
-    ========================= */
-    .login-container {
-      width: 100%;
-      max-width: 440px;
-    }
+    * { box-sizing: border-box; }
+
+    .login-container { width: 100%; max-width: 440px; }
 
     .login-card {
       background: white;
@@ -58,9 +49,7 @@
       box-shadow: var(--shadow-card);
       width: 100%;
       text-align: center;
-      /* Bordure colorée subtile en haut */
       border-top: 6px solid var(--primary);
-      /* Animation d'entrée */
       animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
       overflow: hidden;
@@ -71,229 +60,98 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* =========================
-       HEADER
-    ========================= */
-    .login-header {
-      margin-bottom: 32px;
-    }
+    .login-header { margin-bottom: 32px; }
 
     .login-icon {
-      width: 70px;
-      height: 70px;
+      width: 70px; height: 70px;
       background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
       color: var(--primary);
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      margin: 0 auto 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; margin: 0 auto 20px;
       box-shadow: 0 4px 12px rgba(0, 98, 51, 0.15);
     }
 
     .login-header h2 {
-      margin: 0 0 8px;
-      font-size: 1.75rem;
-      color: var(--text-main);
-      font-weight: 700;
-      letter-spacing: -0.025em;
+      margin: 0 0 8px; font-size: 1.75rem;
+      color: var(--text-main); font-weight: 700; letter-spacing: -0.025em;
     }
 
-    .login-header p {
-      margin: 0;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-    }
+    .login-header p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
 
-    /* =========================
-       FORMULAIRE
-    ========================= */
-    .form-group {
-      margin-bottom: 22px;
-      text-align: left;
-    }
+    .form-group { margin-bottom: 22px; text-align: left; }
 
-    .input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    
-    /* Icône statique à gauche */
+    .input-wrapper { position: relative; display: flex; align-items: center; }
+
     .input-wrapper i.left-icon {
-      position: absolute;
-      left: 16px;
-      color: #94a3b8;
-      font-size: 1.1rem;
-      transition: color 0.3s;
-      z-index: 2;
+      position: absolute; left: 16px; color: #94a3b8; font-size: 1.1rem; transition: color 0.3s; z-index: 2;
     }
 
     .form-input {
-      width: 100%;
-      padding: 14px 16px 14px 48px; /* Padding à gauche ajusté pour l'icône */
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      font-size: 1rem;
-      color: var(--text-main);
-      background: var(--bg-soft);
-      transition: all 0.3s ease;
-      outline: none;
+      width: 100%; padding: 14px 16px 14px 48px;
+      border: 2px solid var(--border); border-radius: 12px;
+      font-size: 1rem; color: var(--text-main); background: var(--bg-soft);
+      transition: all 0.3s ease; outline: none;
     }
 
-    /* Focus State */
     .form-input:focus {
-      border-color: var(--primary);
-      background: white;
-      box-shadow: 0 0 0 4px var(--focus-ring);
+      border-color: var(--primary); background: white; box-shadow: 0 0 0 4px var(--focus-ring);
     }
 
-    .form-input:focus + i.left-icon {
-      color: var(--primary);
-    }
+    .form-input:focus + i.left-icon { color: var(--primary); }
 
-    /* Toggle Password (Oeil) */
     .toggle-password {
-      position: absolute;
-      right: 16px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #94a3b8;
-      font-size: 1.1rem;
-      padding: 4px;
-      transition: color 0.2s;
-      z-index: 3;
+      position: absolute; right: 16px; background: none; border: none;
+      cursor: pointer; color: #94a3b8; font-size: 1.1rem; padding: 4px;
+      transition: color 0.2s; z-index: 3;
     }
 
-    .toggle-password:hover {
-      color: var(--text-main);
-    }
+    .toggle-password:hover { color: var(--text-main); }
 
-    /* Liens sous le champ mot de passe */
     .forgot-pass-link {
-      display: block;
-      text-align: right;
-      margin-top: 8px;
-      font-size: 0.85rem;
+      display: block; text-align: right; margin-top: 8px; font-size: 0.85rem;
     }
-    
+
     .forgot-pass-link a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
+      color: var(--text-muted); text-decoration: none; font-weight: 500; transition: color 0.2s;
     }
 
-    .forgot-pass-link a:hover {
-      color: var(--primary);
-      text-decoration: underline;
-    }
+    .forgot-pass-link a:hover { color: var(--primary); text-decoration: underline; }
 
-    /* =========================
-       BOUTON
-    ========================= */
     .btn-login {
-      width: 100%;
-      padding: 15px;
+      width: 100%; padding: 15px;
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0, 98, 51, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      color: white; border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 98, 51, 0.2);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
     }
 
-    .btn-login:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 15px rgba(0, 98, 51, 0.3);
-    }
+    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 15px rgba(0, 98, 51, 0.3); }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
-    .btn-login:active {
-      transform: translateY(0);
-    }
-
-    .btn-login:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* Spinner pour le chargement */
     .spinner {
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 0.8s linear infinite;
-      display: none; /* Caché par défaut */
+      width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; display: none;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* =========================
-       FOOTER (INSCRIPTION)
-    ========================= */
     .signup-link {
-      margin-top: 28px;
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      padding-top: 20px;
-      border-top: 1px solid #f1f5f9;
+      margin-top: 28px; font-size: 0.95rem; color: var(--text-muted);
+      padding-top: 20px; border-top: 1px solid #f1f5f9;
     }
 
     .signup-link a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 700;
-      position: relative;
+      color: var(--primary); text-decoration: none; font-weight: 700; position: relative;
     }
 
-    .signup-link a::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      bottom: -2px;
-      left: 0;
-      background-color: var(--primary);
-      transform: scaleX(0);
-      transform-origin: bottom right;
-      transition: transform 0.25s ease-out;
-    }
-
-    .signup-link a:hover::after {
-      transform: scaleX(1);
-      transform-origin: bottom left;
-    }
-
-    /* =========================
-       ERREURS (Django style)
-    ========================= */
     .error-box {
-      background-color: #fef2f2;
-      color: #991b1b;
-      padding: 14px;
-      border-radius: 10px;
-      margin-bottom: 25px;
-      font-size: 0.9rem;
-      border: 1px solid #fecaca;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      text-align: left;
-      animation: shake 0.4s ease-in-out;
+      background-color: #fef2f2; color: #991b1b; padding: 14px;
+      border-radius: 10px; margin-bottom: 25px; font-size: 0.9rem;
+      border: 1px solid #fecaca; display: flex; align-items: flex-start;
+      gap: 12px; text-align: left; animation: shake 0.4s ease-in-out;
     }
 
     @keyframes shake {
@@ -302,142 +160,114 @@
       75% { transform: translateX(5px); }
     }
 
-    .error-box i { 
-      color: var(--danger); 
-      margin-top: 2px;
-    }
+    .error-box i { color: var(--danger); margin-top: 2px; }
 
-    /* =========================
-       RESPONSIVE
-    ========================= */
     @media (max-width: 480px) {
-      .login-card {
-        padding: 35px 25px;
-        border-radius: 16px;
-      }
-      body { padding: 10px; background-image: none; background-color: #f8fafc; }
+      .login-card { padding: 35px 25px; border-radius: 16px; }
+      body { padding: 10px; background-image: none !important; background-color: #f8fafc !important; }
     }
-  </style>
-</head>
-<body>
+</style>
 
-  <div class="login-container">
-    <div class="login-card">
-      
-      <!-- HEADER -->
-      <div class="login-header">
-        <div class="login-icon">
-          <i class="fa-solid fa-graduation-cap"></i>
-        </div>
-        <h2>Bienvenue</h2>
-        <p>Connectez-vous pour accéder à votre espace</p>
+<div class="login-container">
+  <div class="login-card">
+
+    <!-- HEADER -->
+    <div class="login-header">
+      <div class="login-icon">
+        <i class="fa-solid fa-graduation-cap"></i>
       </div>
-
-      <!-- ZONE D'ERREUR (Django) -->
-      {% if error %}
-      <div class="error-box">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        <span>{{ error }}</span>
-      </div>
-      {% endif %}
-
-      <!-- FORMULAIRE -->
-      <form method="POST" action="{% url 'login' %}" id="loginForm">
-        {% csrf_token %}
-        
-        <!-- EMAIL -->
-        <div class="form-group">
-          <div class="input-wrapper">
-            <input type="email" id="email" name="email" class="form-input" placeholder="Adresse e-mail" required autocomplete="email">
-            <i class="fa-solid fa-envelope left-icon"></i>
-          </div>
-        </div>
-
-        <!-- MOT DE PASSE -->
-        <div class="form-group">
-          <div class="input-wrapper">
-            <input type="password" id="password" name="password" class="form-input" placeholder="Mot de passe" required autocomplete="current-password">
-            <i class="fa-solid fa-lock left-icon"></i>
-            <!-- Bouton Oeil -->
-            <button type="button" class="toggle-password" tabindex="-1">
-              <i class="fa-regular fa-eye"></i>
-            </button>
-          </div>
-          <div class="forgot-pass-link">
-            <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
-          </div>
-        </div>
-
-        <!-- BOUTON SUBMIT -->
-        <button type="submit" class="btn-login" id="submitBtn">
-          <span class="btn-text">Se connecter</span>
-          <i class="fa-solid fa-arrow-right icon-btn"></i>
-          <div class="spinner"></div>
-        </button>
-      </form>
-
-      <!-- PIED DE PAGE -->
-      <div class="signup-link">
-        Pas encore de compte ? <a href="{% url 'register' %}">Créer un compte</a>
-      </div>
-
+      <h2>{% trans "Bienvenue" %}</h2>
+      <p>{% trans "Connectez-vous pour accéder à votre espace" %}</p>
     </div>
+
+    <!-- ZONE D'ERREUR (Django) -->
+    {% if error %}
+    <div class="error-box">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <!-- FORMULAIRE -->
+    <form method="POST" action="{% url 'login' %}" id="loginForm">
+      {% csrf_token %}
+
+      <!-- EMAIL -->
+      <div class="form-group">
+        <div class="input-wrapper">
+          <input type="email" id="email" name="email" class="form-input" placeholder="{% trans 'Adresse e-mail' %}" required autocomplete="email">
+          <i class="fa-solid fa-envelope left-icon"></i>
+        </div>
+      </div>
+
+      <!-- MOT DE PASSE -->
+      <div class="form-group">
+        <div class="input-wrapper">
+          <input type="password" id="password" name="password" class="form-input" placeholder="{% trans 'Mot de passe' %}" required autocomplete="current-password">
+          <i class="fa-solid fa-lock left-icon"></i>
+          <button type="button" class="toggle-password" tabindex="-1">
+            <i class="fa-regular fa-eye"></i>
+          </button>
+        </div>
+        <div class="forgot-pass-link">
+          <a href="{% url 'password_reset' %}">{% trans "Mot de passe oublié ?" %}</a>
+        </div>
+      </div>
+
+      <!-- BOUTON SUBMIT -->
+      <button type="submit" class="btn-login" id="submitBtn">
+        <span class="btn-text">{% trans "Se connecter" %}</span>
+        <i class="fa-solid fa-arrow-right icon-btn"></i>
+        <div class="spinner"></div>
+      </button>
+    </form>
+
+    <!-- PIED DE PAGE -->
+    <div class="signup-link">
+      {% trans "Pas encore de compte ?" %} <a href="{% url 'register' %}">{% trans "Créer un compte" %}</a>
+    </div>
+
   </div>
+</div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('loginForm');
-      const passwordInput = document.getElementById('password');
-      const toggleBtns = document.querySelectorAll('.toggle-password');
-      const submitBtn = document.getElementById('submitBtn');
-      const btnText = document.querySelector('.btn-text');
-      const iconBtn = document.querySelector('.icon-btn');
-      const spinner = document.querySelector('.spinner');
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('loginForm');
+    const passwordInput = document.getElementById('password');
+    const toggleBtns = document.querySelectorAll('.toggle-password');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.querySelector('.btn-text');
+    const iconBtn = document.querySelector('.icon-btn');
+    const spinner = document.querySelector('.spinner');
 
-      // --- 1. Gestion de la visibilité du mot de passe ---
-      toggleBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const icon = btn.querySelector('i');
-          // Check type actuel
-          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-          passwordInput.setAttribute('type', type);
-          
-          // Toggle Icone
-          if (type === 'text') {
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-            icon.style.color = 'var(--primary)';
-          } else {
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-            icon.style.color = '';
-          }
-        });
-      });
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const icon = btn.querySelector('i');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
 
-      // --- 2. Animation de chargement à la soumission ---
-      form.addEventListener('submit', function(e) {
-        // NOTE: Si vous voulez vraiment soumettre le formulaire en Django,
-        // ne faites pas 'e.preventDefault()' ici, ou conditionnez-le.
-        // Ici, je simule le chargement visuel avant la redirection réelle.
-        
-        const isValid = form.checkValidity();
-        if (!isValid) {
-          // Laisse le navigateur afficher les erreurs HTML5 par défaut
-          return;
+        if (type === 'text') {
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+          icon.style.color = 'var(--primary)';
+        } else {
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+          icon.style.color = '';
         }
-
-        // État de chargement
-        submitBtn.disabled = true;
-        btnText.style.display = 'none';
-        iconBtn.style.display = 'none';
-        spinner.style.display = 'block';
-        submitBtn.style.cursor = 'wait';
-
-        // Simulation (Le formulaire continuera vers le serveur Django normalement)
-        // Le JS est juste là pour l'effet visuel immédiat.
       });
     });
-  </script>
-</body>
-</html>
+
+    form.addEventListener('submit', function(e) {
+      const isValid = form.checkValidity();
+      if (!isValid) return;
+
+      submitBtn.disabled = true;
+      btnText.style.display = 'none';
+      iconBtn.style.display = 'none';
+      spinner.style.display = 'block';
+      submitBtn.style.cursor = 'wait';
+    });
+  });
+</script>
+{% endblock %}

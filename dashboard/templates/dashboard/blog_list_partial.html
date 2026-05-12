@@ -1,7 +1,10 @@
+{% load i18n %}
+
 <!-- Titre de la section -->
 <div class="card">
-    <h2><i class="fa-solid fa-newspaper"></i> Derniers Articles</h2>
+    <h2><i class="fa-solid fa-newspaper"></i> {% trans "Derniers Articles" %}</h2>
 </div>
+
 <!-- Grille d'articles -->
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
     
@@ -28,63 +31,60 @@
                 {{ post.content|striptags|truncatechars:120 }}
             </p>
 
-             <!-- === FOOTER DE LA CARTE (MODIFIÉ) === -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9;">
+             <!-- FOOTER DE LA CARTE -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9;">
         
-        <!-- Gauche : Date -->
-        <span style="font-size: 0.8rem; color: #94a3b8;">
-            <i class="fa-regular fa-calendar"></i> {{ post.created_at|date:"d M Y" }}
-        </span>
+                <!-- Gauche : Date -->
+                <span style="font-size: 0.8rem; color: #94a3b8;">
+                    <i class="fa-regular fa-calendar"></i> {{ post.created_at|date:"d M Y" }}
+                </span>
 
-        <!-- Droite : Actions (VOTRE CODE ICI, ADAPTÉ) -->
-         <!-- Droite : Actions -->
-        <div style="display: flex; gap: 8px; align-items: center;">
-            
-            <!-- CONDITION : AUTEUR OU SUPERADMIN OU ADMINISTRATEUR -->
-            {% if request.user.is_authenticated and request.user == post.author or request.user.is_superuser or request.user.role == 'Administrateur' %}
-                
-                <!-- Bouton Modifier -->
-                <a href="/blog/edit/{{ post.id }}" style="text-decoration: none; color: #f59e0b; font-size: 0.9rem; font-weight: 600;" title="Modifier l'article">
-                    <i class="fa-solid fa-pen"></i>
-                </a>
+                <!-- Droite : Actions -->
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    
+                    {% if request.user.is_authenticated and request.user == post.author or request.user.is_superuser or request.user.role == 'Administrateur' %}
+                        
+                        <!-- Bouton Modifier -->
+                        <a href="/blog/edit/{{ post.id }}" style="text-decoration: none; color: #f59e0b; font-size: 0.9rem; font-weight: 600;" title="{% trans "Modifier l'article" %}">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
 
-                <!-- Bouton Supprimer -->
-                <form method="POST" action="{% url 'delete_post' post.id %}" style="display: inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer cet article ?');">
-                    {% csrf_token %}
-                    <button type="submit" style="border: none; background: none; color: #ef4444; cursor: pointer; font-size: 0.9rem;" title="Supprimer l'article">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </form>
+                        <!-- Bouton Supprimer -->
+                        <form method="POST" action="{% url 'delete_post' post.id %}" style="display: inline;" onsubmit="return confirm('{% trans "Voulez-vous vraiment supprimer cet article ?" %}');">
+                            {% csrf_token %}
+                            <button type="submit" style="border: none; background: none; color: #ef4444; cursor: pointer; font-size: 0.9rem;" title="{% trans "Supprimer l'article" %}">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
 
-            {% endif %}
+                    {% endif %}
 
-            <!-- Lien Lire -->
-            <a href="/blog/{{ post.slug }}" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-left: 10px;">
-                Lire <i class="fa-solid fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
+                    <!-- Lien Lire -->
+                    <a href="/blog/{{ post.slug }}" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-left: 10px;">
+                        {% trans "Lire" %} <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
             
         </div>
     </article>
     
     {% empty %}
-    <!-- Si pas d'articles -->
     <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); border: 2px dashed var(--border); border-radius: 12px;">
         <i class="fa-solid fa-folder-open" style="font-size: 3rem; margin-bottom: 15px;"></i>
-        <p>Aucun article publié pour le moment.</p>
+        <p>{% trans "Aucun article publié pour le moment." %}</p>
     </div>
     {% endfor %}
 
-
 </div>
-<!-- === BARRE DE PAGINATION (AJAX) === -->
+
+<!-- BARRE DE PAGINATION (AJAX) -->
 <div style="display: flex; justify-content: center; margin-top: 40px; gap: 10px;">
     
     {% if page_obj.has_previous %}
         <a href="#" onclick="loadBlogList({{ page_obj.previous_page_number }}); return false;" 
            style="padding: 10px 15px; border: 1px solid var(--border); border-radius: 5px; text-decoration: none;">
-           Précédent
+           {% trans "Précédent" %}
         </a>
     {% endif %}
 
@@ -95,16 +95,17 @@
     {% if page_obj.has_next %}
         <a href="#" onclick="loadBlogList({{ page_obj.next_page_number }}); return false;" 
            style="padding: 10px 15px; border: 1px solid var(--border); border-radius: 5px; text-decoration: none;">
-           Suivant
+           {% trans "Suivant" %}
         </a>
     {% endif %}
 </div>
-<!-- === NOUVELLE SECTION : GALERIE VIDÉO === --><!-- === SECTION : VIDÉOS === -->
+
+<!-- === SECTION : VIDÉOS === -->
 <section class="videos-section">
 
     <div class="section-header">
-        <h2><i class="fa-brands fa-youtube"></i> Vidéos à la une</h2>
-        <p>Retrouvez nos dernières productions pédagogiques en vidéo.</p>
+        <h2><i class="fa-brands fa-youtube"></i> {% trans "Vidéos à la une" %}</h2>
+        <p>{% trans "Retrouvez nos dernières productions pédagogiques en vidéo." %}</p>
     </div>
 
     <div class="video-grid">
@@ -125,7 +126,7 @@
                 </iframe>
                 {% else %}
                 <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ef4444;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Vidéo invalide
+                    <i class="fa-solid fa-triangle-exclamation"></i> {% trans "Vidéo invalide" %}
                 </div>
                 {% endif %}
             </div>
@@ -133,52 +134,46 @@
             <!-- Infos -->
             <div class="video-info">
                 <h3>{{ post.title|truncatewords:8 }}</h3>
-       
             </div>
 
             <!-- Actions -->
-           
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9;">
         
-        <!-- Gauche : Date -->
-             <span>
+                <!-- Gauche : Date -->
+                <span>
                     <i class="fa-regular fa-calendar"></i>
                     {{ post.created_at|date:"d M Y" }}
                 </span>
 
-        <!-- Droite : Actions (VOTRE CODE ICI, ADAPTÉ) -->
-         <!-- Droite : Actions -->
-        <div style="display: flex; gap: 8px; align-items: center;">
-            
-            <!-- CONDITION : AUTEUR OU SUPERADMIN OU ADMINISTRATEUR -->
-            
-                {% if request.user.is_authenticated and request.user == post.author %}
-                <!-- Bouton Modifier -->
-                <a href="{% url 'edit_post' post.id %}?focus=video" style="text-decoration: none; color: #f59e0b; font-size: 0.9rem; font-weight: 600;" title="Modifier l'article">
-                    <i class="fa-solid fa-pen"></i>
-                </a>
+                <!-- Droite : Actions -->
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    
+                    {% if request.user.is_authenticated and request.user == post.author %}
+                    <!-- Bouton Modifier -->
+                    <a href="{% url 'edit_post' post.id %}?focus=video" style="text-decoration: none; color: #f59e0b; font-size: 0.9rem; font-weight: 600;" title="{% trans "Modifier la vidéo" %}">
+                        <i class="fa-solid fa-pen"></i>
+                    </a>
 
-                <!-- Bouton Supprimer -->
-                <form method="POST" action="{% url 'delete_post' post.id %}" style="display: inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer cette video ?');">
-                    <input type="hidden" name="csrfmiddlewaretoken" value="O9Ljc3Xwax7u6Gu3O56iFgtzg0i7TgNmQBBMKBBYqA16TzZaVxNqaGzFO9yid7pg">
-                    <button type="submit" style="border: none; background: none; color: #ef4444; cursor: pointer; font-size: 0.9rem;" title="Supprimer cette vidéo">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </form>
-               {% endif %}
-            
+                    <!-- Bouton Supprimer -->
+                    <form method="POST" action="{% url 'delete_post' post.id %}" style="display: inline;" onsubmit="return confirm('{% trans "Voulez-vous vraiment supprimer cette vidéo ?" %}');">
+                        {% csrf_token %}
+                        <button type="submit" style="border: none; background: none; color: #ef4444; cursor: pointer; font-size: 0.9rem;" title="{% trans "Supprimer cette vidéo" %}">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                    {% endif %}
 
-            <!-- Lien Lire -->
-            <a href="{% url 'blog_detail' post.slug %}" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-left: 10px;">
-                Lire <i class="fa-solid fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
+                    <!-- Lien Lire -->
+                    <a href="{% url 'blog_detail' post.slug %}" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-left: 10px;">
+                        {% trans "Lire" %} <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
 
         </div>
         {% empty %}
         <p style="grid-column:1/-1;text-align:center;color:var(--text-muted);">
-            Aucune vidéo disponible.
+            {% trans "Aucune vidéo disponible." %}
         </p>
         {% endfor %}
 
@@ -187,7 +182,7 @@
 </section>
 
 <style>
- .blog-card:hover {
+.blog-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 15px rgba(0,0,0,0.1);
 }
@@ -201,7 +196,6 @@
     border: 1px solid var(--border);
 }
 
-/* Header */
 .videos-section .section-header {
     text-align: center;
     margin-bottom: 30px;
@@ -218,14 +212,12 @@
     font-size: 1rem;
 }
 
-/* Grille */
 .video-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 25px;
 }
 
-/* Carte vidéo */
 .video-card {
     background: #fff;
     border-radius: 12px;
@@ -242,7 +234,6 @@
     box-shadow: 0 10px 15px rgba(0,0,0,0.1);
 }
 
-/* Thumbnail */
 .video-thumbnail {
     position: relative;
     width: 100%;
@@ -258,7 +249,6 @@
     border: none;
 }
 
-/* Infos */
 .video-info {
     padding: 15px;
     border-top: 1px solid var(--border);
@@ -273,32 +263,4 @@
     font-size: 0.9rem;
     color: var(--text-muted);
 }
-
-/* Actions */
-.video-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 15px;
-    border-top: 1px solid var(--border);
-    background: #f8fafc;
-}
-
-.btn-video-link {
-    background: #006233;
-    color: #fff;
-}
-
-.btn-video-edit {
-    background: #f59e0b;
-    color: #fff;
-}
-
-.btn-video-delete button {
-    background: #ef4444;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-}
-
 </style>

@@ -1,0 +1,311 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-13 00:14+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Accueil"
+msgstr "Accueil"
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Mon Profil"
+msgstr "Mon Profil"
+
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+msgid "Déconnexion"
+msgstr "Déconnexion"
+
+msgid "Espace Personnel"
+msgstr "Espace Personnel"
+
+msgid "Accueil - Edu"
+msgstr "Accueil - Edu"
+
+msgid "Dashboard Analytique"
+msgstr "Dashboard Analytique"
+
+msgid "Sélectionnez un formulaire ci-dessous pour voir l'analyse détaillée."
+msgstr "Sélectionnez un formulaire ci-dessous pour voir l'analyse détaillée."
+
+msgid "Réponses"
+msgstr "Réponses"
+
+msgid "Rechercher..."
+msgstr "Rechercher..."
+
+msgid "Filtrer"
+msgstr "Filtrer"
+
+msgid "Mois"
+msgstr "Mois"
+
+msgid "Tout"
+msgstr "Tout"
+
+msgid "Enseignant"
+msgstr "Enseignant"
+
+msgid "Tous"
+msgstr "Tous"
+
+msgid "Statut"
+msgstr "Statut"
+
+msgid "Présent (P)"
+msgstr "Présent (P)"
+
+msgid "Absent (A)"
+msgstr "Absent (A)"
+
+msgid "Retard (R)"
+msgstr "Retard (R)"
+
+msgid "Réinitialiser"
+msgstr "Réinitialiser"
+
+msgid "Top Absences"
+msgstr "Top Absences"
+
+msgid "Évolution"
+msgstr "Évolution"
+
+msgid "Répartition"
+msgstr "Répartition"
+
+msgid "Début"
+msgstr "Début"
+
+msgid "Précédent"
+msgstr "Précédent"
+
+msgid "Suivant"
+msgstr "Suivant"
+
+msgid "Fin"
+msgstr "Fin"
+
+msgid "Page %(page_obj.number)s / %(page_obj.paginator.num_pages)s"
+msgstr "Page %(page_obj.number)s / %(page_obj.paginator.num_pages)s"
+
+msgid "Aucun formulaire disponible"
+msgstr "Aucun formulaire disponible"
+
+msgid "Veuillez ajouter des formulaires dans la configuration."
+msgstr "Veuillez ajouter des formulaires dans la configuration."
+
+msgid "Bienvenue"
+msgstr "Bienvenue"
+
+msgid "Connectez-vous pour accéder à votre espace"
+msgstr "Connectez-vous pour accéder à votre espace"
+
+msgid "Adresse e-mail"
+msgstr "Adresse e-mail"
+
+msgid "Mot de passe"
+msgstr "Mot de passe"
+
+msgid "Mot de passe oublié ?"
+msgstr "Mot de passe oublié ?"
+
+msgid "Se connecter"
+msgstr "Se connecter"
+
+msgid "Pas encore de compte ?"
+msgstr "Pas encore de compte ?"
+
+msgid "Créer un compte"
+msgstr "Créer un compte"
+
+msgid "Inscription - Edu Dashboard"
+msgstr "Inscription - Edu Dashboard"
+
+msgid "Rejoignez l'Edu Dashboard"
+msgstr "Rejoignez l'Edu Dashboard"
+
+msgid "Aperçu"
+msgstr "Aperçu"
+
+msgid "Choisir une photo"
+msgstr "Choisir une photo"
+
+msgid "Nom"
+msgstr "Nom"
+
+msgid "Votre nom"
+msgstr "Votre nom"
+
+msgid "Prénom"
+msgstr "Prénom"
+
+msgid "Votre prénom"
+msgstr "Votre prénom"
+
+msgid "Adresse Email"
+msgstr "Adresse Email"
+
+msgid "nom@exemple.com"
+msgstr "nom@exemple.com"
+
+msgid "Rôle"
+msgstr "Rôle"
+
+msgid "Administrateur"
+msgstr "Administrateur"
+
+msgid "Inspecteur IEF"
+msgstr "Inspecteur IEF"
+
+msgid "Directeur"
+msgstr "Directeur"
+
+msgid "Téléphone"
+msgstr "Téléphone"
+
+msgid "Adresse"
+msgstr "Adresse"
+
+msgid "Votre adresse..."
+msgstr "Votre adresse..."
+
+msgid "8 caractères min."
+msgstr "8 caractères min."
+
+msgid "S'inscrire maintenant"
+msgstr "S'inscrire maintenant"
+
+msgid "Déjà inscrit ?"
+msgstr "Déjà inscrit ?"
+
+msgid "Blog - Edu Dashboard"
+msgstr "Blog - Edu Dashboard"
+
+msgid "Le Blog Éducatif"
+msgstr "Le Blog Éducatif"
+
+msgid "Découvrez nos dernières actualités, ressources pédagogiques et réussites."
+msgstr "Découvrez nos dernières actualités, ressources pédagogiques et réussites."
+
+msgid "Écrire un article"
+msgstr "Écrire un article"
+
+msgid "Image par défaut"
+msgstr "Image par défaut"
+
+msgid "Modifier l'article"
+msgstr "Modifier l'article"
+
+msgid "Supprimer l'article"
+msgstr "Supprimer l'article"
+
+msgid "Êtes-vous sûr de vouloir supprimer cet article ?"
+msgstr "Êtes-vous sûr de vouloir supprimer cet article ?"
+
+msgid "Aucun article publié pour le moment."
+msgstr "Aucun article publié pour le moment."
+
+msgid "Vidéos à la une"
+msgstr "Vidéos à la une"
+
+msgid "Retrouvez nos dernières productions pédagogiques en vidéo."
+msgstr "Retrouvez nos dernières productions pédagogiques en vidéo."
+
+msgid "Modifier la vidéo"
+msgstr "Modifier la vidéo"
+
+msgid "Supprimer cette vidéo"
+msgstr "Supprimer cette vidéo"
+
+msgid "Êtes-vous sûr de vouloir supprimer cette vidéo ?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette vidéo ?"
+
+msgid "Aucune vidéo disponible."
+msgstr "Aucune vidéo disponible."
+
+msgid "Page %(video_page_obj.number)s / %(video_page_obj.paginator.num_pages)s"
+msgstr "Page %(video_page_obj.number)s / %(video_page_obj.paginator.num_pages)s"
+
+msgid "Blog Edu"
+msgstr "Blog Edu"
+
+msgid "Retour au Blog"
+msgstr "Retour au Blog"
+
+msgid "Voir la vidéo"
+msgstr "Voir la vidéo"
+
+msgid "Supprimer"
+msgstr "Supprimer"
+
+msgid "ATTENTION ! Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible."
+msgstr "ATTENTION ! Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible."
+
+msgid "Derniers Articles"
+msgstr "Derniers Articles"
+
+msgid "Nouvel Article"
+msgstr "Nouvel Article"
+msgid "Voulez-vous vraiment supprimer cet article ?"
+msgstr "Voulez-vous vraiment supprimer cet article ?"
+
+msgid "Lire"
+msgstr "Lire"
+
+msgid "Vidéo invalide"
+msgstr "Vidéo invalide"
+
+msgid "Voulez-vous vraiment supprimer cette vidéo ?"
+msgstr "Voulez-vous vraiment supprimer cette vidéo ?"
+
+msgid "Tableau de Board"
+msgstr "Tableau de Board"
+
+msgid "Tableaux"
+msgstr "Tableaux"
+
+msgid "Liste des Articles"
+msgstr "Liste des Articles"
+
+msgid "Ministère de l'Éducation"
+msgstr "Ministère de l'Éducation"
+
+msgid "Système de Suivi des Absences"
+msgstr "Système de Suivi des Absences"
+
+msgid "Gestion des Personnels"
+msgstr "Gestion des Personnels"
+
+msgid "Total Réponses"
+msgstr "Total Réponses"
+
+msgid "Global Présents"
+msgstr "Global Présents"
+
+msgid "Global Absences"
+msgstr "Global Absences"
+
+msgid "Formulaires Actifs"
+msgstr "Formulaires Actifs"
+
+msgid "Prêt à analyser ?"
+msgstr "Prêt à analyser ?"
+
+msgid "Les données s'afficheront ici dès que vous cliquerez sur un formulaire dans le menu."
+msgstr "Les données s'afficheront ici dès que vous cliquerez sur un formulaire dans le menu."
+
+msgid "Dashboard Admin"
+msgstr "Dashboard Admin"
+
+msgid "عربي"
+msgstr "عربي"

@@ -1,6 +1,9 @@
+{% load static %}
+{% load i18n %}
 <nav class="navbar">
+
     <!-- Logo -->
-    <a href="/" class="nav-logo">
+    <a href="{% url 'home' %}" class="nav-logo">
         <i class="fa-solid fa-chart-line"></i> Edu
     </a>
 
@@ -11,47 +14,235 @@
 
     <!-- Liens -->
     <div class="nav-links" id="navLinks">
-        <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
+
+        <a href="{% url 'home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">
             <i class="fa-solid fa-house"></i>
-            <span data-i18n="menu_home">Accueil</span>
+            <span>{% trans "Accueil" %}</span>
         </a>
 
-        <a href="/blog" class="nav-link {% if '/blog' in request.path %}active{% endif %}">
+        <a href="{% url 'blog' %}" class="nav-link {% if '/blog' in request.path %}active{% endif %}">
             <i class="fa-solid fa-newspaper"></i>
-            <span data-i18n="menu_blog">Blog</span>
+            <span>{% trans "Blog" %}</span>
         </a>
-{% if request.user.is_authenticated %}
-<!-- Utilisateur connecté -->
-<div class="dropdown">
-    <button type="button" class="nav-link dropdown-toggle" id="userDropdown">
-        {% if request.user.profile_image %}
-            <img src="{{ request.user.profile_image.url }}" class="user-avatar-small" alt="Profil">
+
+       {% if request.user.is_authenticated %}
+        <div class="dropdown">
+            <button type="button" class="nav-link dropdown-toggle" onclick="toggleUserMenu()">
+                {% if request.user.profile_image and request.user.profile_image.name %}
+                    <img src="{{ request.user.profile_image.url }}" class="user-avatar-small">
+                {% else %}
+                    <i class="fa-solid fa-user-circle" style="font-size:1.5rem;"></i>
+                {% endif %}
+
+                <span>{{ request.user.first_name }}</span>
+                <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
+            </button>
+
+            <div class="dropdown-menu" id="userMenu">
+                <a href="{% url 'profile' %}">
+                    <i class="fa-regular fa-id-card"></i>
+                    {% trans "Mon Profil" %}
+                </a>
+
+                {% if request.user.role != "Enseignant" %}
+                <a href="{% url 'dashboard' %}">
+                    <i class="fa-solid fa-table-list"></i>
+                    {% trans "Dashboard" %}
+                </a>
+                {% endif %}
+
+                {% if request.user.is_superuser or request.user.role == "Administrateur" %}
+                <a href="{% url 'admin_panel' %}">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    {% trans "Admin Panel" %}
+                </a>
+                {% endif %}
+
+                <a href="{% url 'logout' %}">
+                    <i class="fa-solid fa-power-off text-danger"></i>
+                    {% trans "Déconnexion" %}
+                </a>
+            </div>
+        </div>
         {% else %}
-            <i class="fa-solid fa-user-circle" style="font-size:1.5rem;"></i>
+        <a href="{% url 'login' %}" class="nav-link">
+            <i class="fa-solid fa-user-circle"></i>
+            {% trans "Espace Personnel" %}
+        </a>
         {% endif %}
-        <span>{{ request.user.first_name }}</span>
-        <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
-    </button>
 
-    <div class="dropdown-menu" id="userDropdownMenu">
-        <a href="{% url 'profile' %}">
-            <i class="fa-regular fa-id-card"></i> Mon Profil
-        </a>
-        <a href="{% url 'dashboard' %}">
-            <i class="fa-solid fa-table-list"></i> Dashboard
-        </a>
-        <a href="{% url 'logout' %}">
-            <i class="fa-solid fa-power-off text-danger"></i> Déconnexion
-        </a>
-    </div>
-</div>
-{% else %}
-<a href="{% url 'login' %}" class="nav-link">
-    <i class="fa-solid fa-user-circle"></i> Espace Personnel
-</a>
-{% endif %}
+        <!-- Formulaire de langue -->
+        <form action="{% url 'set_language' %}" method="post" class="lang-toggle-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input type="hidden" name="language" id="langInput">
 
-        <!-- Langue -->
-        <button onclick="toggleLanguage()" class="btn-lang" id="lang-btn">🇲🇷</button>
+            <div class="lang-toggle">
+                <button onclick="setLang('fr')" class="{% if LANGUAGE_CODE == 'fr' %}active{% endif %}">
+                    <img src="https://flagcdn.com/w20/fr.png" alt="FR">
+                    Français
+                </button>
+
+                <button onclick="setLang('ar')" class="{% if LANGUAGE_CODE == 'ar' %}active{% endif %}">
+                    <img src="https://flagcdn.com/w20/mr.png" alt="AR">
+                    العربية
+                </button>
+            </div>
+        </form>
+
     </div>
 </nav>
+
+<style>
+/* ================= DESKTOP & BASE ================= */
+html[dir="rtl"] { font-family: "Cairo", sans-serif; }
+html[dir="rtl"] .navbar { flex-direction: row-reverse; }
+html[dir="rtl"] .nav-links { flex-direction: row-reverse; }
+
+.lang-toggle {
+    display: flex; background: #f3f4f6; padding: 4px;
+    border-radius: 12px; width: fit-content; gap: 4px;
+}
+.lang-toggle button {
+    border: none; padding: 6px 14px; cursor: pointer;
+    background: transparent; border-radius: 10px; font-weight: 600;
+    transition: 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.lang-toggle button.active { background: #2563eb; color: white; }
+.lang-toggle button:hover { background: #e5e7eb; }
+html[dir="rtl"] .dropdown-menu { left: 0; right: auto; }
+
+
+/* ================= MOBILE (CORRIGÉ) ================= */
+@media (max-width: 768px) {
+    /* CACHE LE LOGO SUR MOBILE */
+    .nav-logo {
+        display: none !important;
+    }
+
+    /* BOUTON BURGER */
+    .nav-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 15px; 
+        left: 15px; 
+        width: 45px;
+        height: 45px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1.3rem;
+        color: white;
+        z-index: 9999 !important; 
+        transition: background 0.2s;
+    }
+    .nav-toggle:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    /* MENU MOBILE */
+    .nav-links {
+        position: fixed;
+        top: 0; /* On le colle tout en haut de l'écran */
+        left: 0;
+        width: 100%;
+        height: 100vh; /* Prend tout l'écran pour être sûr de ne rien cacher */
+        background: #006233; 
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 80px 20px 20px 20px; /* 80px en haut pour ne pas cacher le bouton toggle */
+        gap: 15px;
+        display: none; 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        z-index: 1000;
+        overflow-y: auto; 
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    /* Liens en blanc */
+    .nav-links .nav-link,
+    .nav-links .nav-link span,
+    .nav-links .nav-link i {
+        color: white !important;
+    }
+    .nav-link {
+        width: 100%;
+        padding: 12px 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Menu déroulant utilisateur */
+    .dropdown-menu {
+        position: static;
+        width: 100%;
+        box-shadow: none;
+        background: rgba(255,255,255,0.1);
+        border-radius: 8px;
+        margin-top: 5px;
+        padding: 5px 0;
+    }
+    .dropdown-menu a {
+        color: white !important;
+        padding: 10px 15px !important;
+        border-radius: 6px;
+    }
+    .dropdown-menu a:hover {
+        background: rgba(255,255,255,0.2) !important;
+    }
+
+    /* Formulaire langue */
+    .lang-toggle-form {
+        width: 100%;
+        margin-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 15px;
+    }
+    .lang-toggle {
+        width: 100%;
+        justify-content: center;
+        background: rgba(255,255,255,0.1);
+    }
+    .lang-toggle button { color: white; }
+    .lang-toggle button.active { background: white; color: #006233; }
+}
+}
+</style>
+
+<script>
+// LA FONCTION MANQUANTE QUI FAIT TOUT PLANTER SUR MOBILE
+function toggleMenu() {
+    document.getElementById("navLinks").classList.toggle("active");
+}
+
+function setLang(lang){
+    document.getElementById('langInput').value = lang;
+    document.querySelector('.lang-toggle-form').submit();
+}
+
+function toggleUserMenu() {
+    document.getElementById("userMenu").classList.toggle("show");
+}
+
+// Fermer les menus si on clique en dehors
+window.addEventListener('click', function(event) {
+    // Fermer le menu utilisateur
+    if (!event.target.matches('.dropdown-toggle') && !event.target.closest('.dropdown-toggle')) {
+        var dropdowns = document.getElementsByClassName("dropdown-menu");
+        for (var i = 0; i < dropdowns.length; i++) {
+            if (dropdowns[i].classList.contains('show')) {
+                dropdowns[i].classList.remove('show');
+            }
+        }
+    }
+    
+    // Fermer le menu burger mobile si on clique sur un lien
+    if (event.target.closest('.nav-link') && window.innerWidth <= 768) {
+        document.getElementById("navLinks").classList.remove('active');
+    }
+});
+</script>

@@ -1,12 +1,97 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}{{ post.title }} - Blog Edu{% endblock %}
+{% block title %}{{ post.title }} - {% trans "Blog Edu" %}{% endblock %}
 
 {% block content %}
+<style>
+    .detail-card {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .detail-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .detail-title {
+        font-size: 2rem;
+        margin-top: 10px;
+        color: #1e293b;
+    }
+
+    .detail-meta {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .video-wrapper {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 */
+        height: 0;
+        overflow: hidden;
+        margin: 30px 0;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    .placeholder {
+        width: 100%; height: 300px;
+        background: #f1f5f9;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        color: #cbd5e1;
+        border-radius: 8px;
+    }
+
+    .detail-body {
+        margin-top: 20px;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #334155;
+    }
+
+    .detail-actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background 0.3s ease;
+    }
+
+    .btn-warning { background-color: #facc15; color: #1e293b; }
+    .btn-warning:hover { background-color: #eab308; }
+
+    .btn-info { background-color: #3b82f6; color: #fff; }
+    .btn-info:hover { background-color: #2563eb; }
+
+    .btn-danger { background-color: #ef4444; color: #fff; border: none; cursor: pointer; }
+    .btn-danger:hover { background-color: #dc2626; }
+</style>
 
 <!-- LIEN RETOUR -->
 <a href="{% url 'blog' %}" class="back-link">
-    <i class="fa-solid fa-arrow-left"></i> Retour au Blog
+    <i class="fa-solid fa-arrow-left"></i> {% trans "Retour au Blog" %}
 </a>
 
 <!-- CARTE DÉTAILS -->
@@ -23,141 +108,57 @@
     </div>
 
     <!-- 2. MÉDIA (Image OU Vidéo) -->
-<div class="detail-hero">
-    {% if post.embed_video_url %}
-        <div class="video-wrapper">
-            <iframe src="{{ post.embed_video_url }}"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen>
-            </iframe>
-        </div>
-    {% elif post.video_url %}
-        <p class="video-link">
-            <a href="{{ post.video_url }}" target="_blank" rel="noopener noreferrer">
-                Voir la vidéo
-            </a>
-        </p>
-    {% elif post.image %}
-        <div class="image-wrapper">
-            <img src="{{ post.image.url }}" alt="{{ post.title }}">
-        </div>
-    {% endif %}
-</div>
+    <div class="detail-hero">
+        {% if post.embed_video_url %}
+            <div class="video-wrapper">
+                <iframe src="{{ post.embed_video_url }}"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                </iframe>
+            </div>
+        {% elif post.video_url %}
+            <p class="video-link">
+                <a href="{{ post.video_url }}" target="_blank" rel="noopener noreferrer">
+                    {% trans "Voir la vidéo" %}
+                </a>
+            </p>
+        {% elif post.image %}
+            <div class="image-wrapper">
+                <img src="{{ post.image.url }}" alt="{{ post.title }}">
+            </div>
+        {% endif %}
+    </div>
 
     <!-- 3. CONTENU TEXTE -->
     <div class="detail-body">
         {{ post.content|safe }}
     </div>
 
-  <!-- 4. ACTIONS (Modifier / Supprimer) -->
-          {% if request.user.is_superuser or request.user.role == 'Administrateur' or request.user == post.author %}
-                   
-  <div class="detail-actions">
+    <!-- 4. ACTIONS (Modifier / Supprimer) -->
+    {% if request.user.is_superuser or request.user.role == 'Administrateur' or request.user == post.author %}
+    <div class="detail-actions">
         <!-- Bouton Modifier -->
         <a href="{% url 'edit_post' post.id %}" class="btn btn-warning">
-            <i class="fa-solid fa-pen-to-square"></i> Modifier l'article
+            <i class="fa-solid fa-pen-to-square"></i> {% trans "Modifier l'article" %}
         </a>
 
         <!-- Bouton Modifier uniquement la vidéo -->
         <a href="{% url 'edit_post' post.id %}?focus=video" class="btn btn-info">
-            <i class="fa-solid fa-video"></i> Modifier la vidéo
+            <i class="fa-solid fa-video"></i> {% trans "Modifier la vidéo" %}
         </a>
 
         <!-- Bouton Supprimer -->
         <form method="POST" action="{% url 'delete_post' post.id %}" 
-              onsubmit="return confirm('ATTENTION ! Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.');">
+              onsubmit="return confirm('{% trans "ATTENTION ! Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible." %}');">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">
-                <i class="fa-solid fa-trash"></i> Supprimer
+                <i class="fa-solid fa-trash"></i> {% trans "Supprimer" %}
             </button>
         </form>
     </div>
-   {% endif %}
+    {% endif %}
 
 </div>
-<style>
-.detail-card {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-}
 
-.detail-header {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.detail-title {
-    font-size: 2rem;
-    margin-top: 10px;
-    color: #1e293b;
-}
-
-.detail-meta {
-    color: #64748b;
-    font-size: 0.9rem;
-}
-
-.video-wrapper {
-    position: relative;
-    width: 100%;
-    padding-bottom: 56.25%; /* 16:9 */
-    height: 0;
-    overflow: hidden;
-    margin: 30px 0;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.video-wrapper iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-
-.placeholder {
-    width: 100%; height: 300px;
-    background: #f1f5f9;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    color: #cbd5e1;
-    border-radius: 8px;
-}
-
-.detail-body {
-    margin-top: 20px;
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #334155;
-}
-
-.detail-actions {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-
-.btn {
-    padding: 10px 20px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background 0.3s ease;
-}
-
-.btn-warning { background-color: #facc15; color: #1e293b; }
-.btn-warning:hover { background-color: #eab308; }
-
-.btn-info { background-color: #3b82f6; color: #fff; }
-.btn-info:hover { background-color: #2563eb; }
-
-.btn-danger { background-color: #ef4444; color: #fff; border: none; cursor: pointer; }
-.btn-danger:hover { background-color: #dc2626; }
-</style>
 {% endblock %}

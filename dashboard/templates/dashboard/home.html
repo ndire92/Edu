@@ -1,174 +1,480 @@
 {% extends "base.html" %}
-
-{% block title %}Accueil - Edu{% endblock %}
+{% load i18n %}
+{% load static %}
 
 {% block content %}
-<!-- HERO -->
-<section class="hero">
-    <h1 class="main-title">
-        <i class="fa-solid fa-chart-pie main-icon"></i> 
-        <span data-i18n="title">Dashboard Analytique</span>
-    </h1>
-    <p style="color: var(--text-muted); font-size: 1.1rem;">
-        <span data-i18n="subtitle">
-            Sélectionnez un formulaire ci-dessous pour voir l'analyse détaillée.
-        </span>
-    </p>
-</section>
+<style>
+:root {
+    --pbi-green: #006233;
+    --pbi-green-dark: #004d26;
+    --pbi-green-light: #00a65a;
+    --pbi-gold: #d4a843;
+    --pbi-red: #c0392b;
+    --pbi-blue: #2980b9;
+    --card-bg: rgba(255,255,255,0.85);
+    --card-border: rgba(0,98,51,0.08);
+}
+#welcome-section, #empty-state, .global-overview { display: none !important; }
 
-<!-- CARTES DES FORMULAIRES -->
-{% for table in all_tables %}
-<div class="card" id="card-{{ table.uid }}">
+.hero-pbi {
+    background: linear-gradient(135deg, var(--pbi-green-dark) 0%, var(--pbi-green) 40%, var(--pbi-green-light) 100%);
+    color: white; padding: 40px 36px; border-radius: 20px; margin-bottom: 30px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 12px 40px rgba(0,98,51,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+    position: relative; overflow: hidden;
+}
+.hero-pbi::before {
+    content: ''; position: absolute; top: -60%; right: -10%;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+}
+.hero-pbi::after {
+    content: ''; position: absolute; bottom: -40%; left: 20%;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,168,67,0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+.hero-pbi h1 { margin: 0; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; position: relative; }
+.hero-pbi h1 i { color: var(--pbi-gold); margin-right: 10px; }
+.hero-pbi p { margin: 8px 0 0 0; opacity: 0.85; font-size: 1.05rem; font-weight: 300; position: relative; }
+.hero-pbi .hero-icon {
+    font-size: 5rem; opacity: 0.12; position: relative;
+    animation: floatIcon 6s ease-in-out infinite;
+}
+@keyframes floatIcon {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
 
-    <h2>
-        {{ table.title }}
-        <small>
-            <i class="fa-solid fa-database"></i>
-            {{ table.total }} <span data-i18n="responses">Réponses</span>
-        </small>
-    </h2>
+.stats-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px;
+}
+.stat-card {
+    background: white; border-radius: 14px; padding: 20px 22px;
+    border: 1px solid var(--card-border); display: flex; align-items: center; gap: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+.stat-icon {
+    width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; color: white; flex-shrink: 0;
+}
+.stat-card .stat-number { font-size: 1.7rem; font-weight: 800; color: var(--text-main); line-height: 1; }
+.stat-card .stat-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
 
-    <!-- RECHERCHE -->
-    <form method="get" class="search-container">
-        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input
-            type="text"
-            name="q"
-            value="{{ query }}"
-            data-i18n-placeholder="search_ph"
-            placeholder="Rechercher..."
-        >
-        <button type="submit" class="btn-search">
-            <i class="fa-solid fa-filter"></i>
-            <span data-i18n="btn_search">Filtrer</span>
-        </button>
+.filters-pbi {
+    display: flex; gap: 12px; margin-bottom: 28px; align-items: center; flex-wrap: wrap;
+    background: white; padding: 16px 22px; border-radius: 14px;
+    border: 1px solid var(--card-border); box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.filters-pbi label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.filters-pbi select {
+    flex: 1; min-width: 200px; padding: 10px 16px; border-radius: 10px;
+    border: 1.5px solid #e2e8f0; font-size: 0.95rem; background: #f8fafc;
+    transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+}
+.filters-pbi select:focus { border-color: var(--pbi-green); box-shadow: 0 0 0 3px rgba(0,98,51,0.1); }
+.filters-pbi button {
+    background: linear-gradient(135deg, var(--pbi-green), var(--pbi-green-light));
+    color: white; border: none; cursor: pointer; font-weight: 700;
+    padding: 11px 24px; border-radius: 10px; font-size: 0.95rem;
+    box-shadow: 0 4px 15px rgba(0,98,51,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.filters-pbi button:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,98,51,0.4); }
+.filters-pbi button:active { transform: translateY(0); }
 
-        <!-- conserver les filtres -->
-        <input type="hidden" name="filter_month" value="{{ current_month }}">
-        <input type="hidden" name="filter_teacher" value="{{ current_teacher }}">
-        <input type="hidden" name="filter_type" value="{{ current_type }}">
-    </form>
+.grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+    transition: opacity 0.4s ease;
+}
+.box {
+    background: var(--card-bg); padding: 0; border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid var(--card-border);
+    backdrop-filter: blur(10px); overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0; animation: cardIn 0.5s ease forwards;
+}
+.box:nth-child(1) { animation-delay: 0.05s; }
+.box:nth-child(2) { animation-delay: 0.1s; }
+.box:nth-child(3) { animation-delay: 0.15s; }
+.box:nth-child(4) { animation-delay: 0.2s; }
+.box:nth-child(5) { animation-delay: 0.25s; }
+.box:nth-child(6) { animation-delay: 0.3s; }
+.box:nth-child(7) { animation-delay: 0.35s; }
+.box:nth-child(8) { animation-delay: 0.4s; }
+.box:nth-child(9) { animation-delay: 0.45s; }
+@keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.box:hover { transform: translateY(-4px); box-shadow: 0 12px 35px rgba(0,0,0,0.08); }
+.box-header {
+    padding: 14px 18px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid #f1f5f9; background: rgba(0,98,51,0.02);
+}
+.box-header i { color: var(--pbi-green); font-size: 1rem; }
+.box-header h5 { margin: 0; font-size: 0.88rem; font-weight: 700; color: var(--text-main); }
+.pbi { height: 280px; width: 100%; }
 
-    <!-- FILTRES -->
-    <form method="get" class="filter-bar">
-        <input type="hidden" name="q" value="{{ query }}">
+.image-section {
+    margin-top: 40px; border-radius: 20px; overflow: hidden; position: relative;
+    height: 260px; box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+.image-section img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: brightness(0.65); transition: transform 8s ease;
+}
+.image-section:hover img { transform: scale(1.05); }
+.image-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,77,38,0.85) 0%, rgba(0,98,51,0.5) 50%, transparent 100%);
+    display: flex; flex-direction: column; justify-content: center; padding: 40px 50px;
+}
+.image-overlay h2 { color: white; font-size: 1.8rem; font-weight: 800; margin: 0 0 8px 0; }
+.image-overlay p { color: rgba(255,255,255,0.85); font-size: 1.05rem; margin: 0; max-width: 550px; line-height: 1.6; }
+.image-overlay .badges { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.image-overlay .badge {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2); color: white;
+    padding: 6px 16px; border-radius: 50px; font-size: 0.82rem; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+}
+.image-overlay .badge i { color: var(--pbi-gold); }
 
-        <div class="filter-group">
-            <label>
-                <i class="fa-regular fa-calendar"></i>
-                <span data-i18n="label_month">Mois</span>
-            </label>
-            <select name="filter_month" onchange="this.form.submit()">
-                <option value="" data-i18n="opt_all">Tout</option>
-                {% for m in table.available_months %}
-                    <option value="{{ m }}" {% if m == current_month %}selected{% endif %}>
-                        {{ m }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+.loader { display: none; text-align: center; padding: 60px; }
+.loader.active { display: block; }
+.loader .spinner {
+    width: 44px; height: 44px; border: 4px solid #e2e8f0;
+    border-top-color: var(--pbi-green); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-        <div class="filter-group">
-            <label>
-                <i class="fa-solid fa-user-graduate"></i>
-                <span data-i18n="label_teacher">Enseignant</span>
-            </label>
-            <select name="filter_teacher" onchange="this.form.submit()">
-                <option value="" data-i18n="opt_all_teachers">Tous</option>
-                {% for t in table.available_teachers %}
-                    <option value="{{ t }}" {% if t == current_teacher %}selected{% endif %}>
-                        {{ t }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+@media (max-width: 1100px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+}
 
-        <div class="filter-group">
-            <label>
-                <i class="fa-solid fa-clipboard-check"></i>
-                <span data-i18n="label_status">Statut</span>
-            </label>
-            <select name="filter_type" onchange="this.form.submit()">
-                <option value="" data-i18n="opt_all">Tout</option>
-                <option value="P" {% if current_type == "P" %}selected{% endif %}>Présent (P)</option>
-                <option value="A" {% if current_type == "A" %}selected{% endif %}>Absent (A)</option>
-                <option value="R" {% if current_type == "R" %}selected{% endif %}>Retard (R)</option>
-            </select>
-        </div>
+@media (max-width: 700px) {
+    .grid {
+        grid-template-columns: 1fr;
+        overflow: hidden; /* Empêche le débordement horizontal */
+    }
 
-        <div class="filter-group" style="display:flex;align-items:flex-end;">
-            <a href="?" class="btn-reset">
-                <i class="fa-solid fa-rotate-right"></i>
-                <span data-i18n="btn_reset">Réinitialiser</span>
-            </a>
-        </div>
-    </form>
+    /* FORCE LES GRAPHIQUES PLOTLY À RÉTRÉCIR */
+    .box {
+        min-width: 0; /* Magique en CSS Grid : permet au bloc de rétrécir en dessous de la taille du contenu */
+        overflow: hidden;
+    }
+    .pbi {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
 
-    <!-- GRAPHIQUES -->
-    <div class="dashboard-grid">
+    .stats-bar {
+        grid-template-columns: 1fr 1fr;
+    }
 
-        <div class="chart-container chart-full">
-            <div class="chart-header">
-                <i class="fa-solid fa-chart-simple" style="color:var(--primary)"></i>
-                <span data-i18n="chart_bar">Top Absences</span>
-            </div>
-            {{ table.chart_bar|safe }}
-        </div>
+    .hero-pbi {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px 20px;
+    }
+    .hero-pbi .hero-icon { font-size: 3.5rem; }
 
-        <div class="chart-container">
-            <div class="chart-header">
-                <i class="fa-solid fa-arrow-trend-up" style="color:var(--success)"></i>
-                <span data-i18n="chart_line">Évolution</span>
-            </div>
-            {{ table.chart_line|safe }}
-        </div>
+    .filters-pbi {
+        flex-direction: column; /* Met les filtres en colonne sur petit écran */
+    }
+    .filters-pbi select {
+        width: 100%;
+        min-width: unset;
+    }
 
-        <div class="chart-container">
-            <div class="chart-header">
-                <i class="fa-solid fa-chart-pie" style="color:var(--accent-yellow)"></i>
-                <span data-i18n="chart_pie">Répartition</span>
-            </div>
-            {{ table.chart_pie|safe }}
-        </div>
+    .image-section { height: 220px; }
+    .image-overlay { padding: 24px; }
+    .image-overlay h2 { font-size: 1.3rem; }
+}
+</style>
 
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+<!-- ======================================================= -->
+<!-- NOUVEAU : On injecte les traductions Django dans le JS   -->
+<!-- ======================================================= -->
+<script>
+    const DJANGO_LANG = "{{ LANGUAGE_CODE }}";
+    const DJANGO_TRANS = {
+        homme: "{% trans 'Homme' %}",
+        femme: "{% trans 'Femme' %}",
+        justifiees: "{% trans 'Justifiées' %}",
+        non_justifiees: "{% trans 'Non Justifiées' %}",
+        absences: "{% trans 'absences' %}"
+    };
+</script>
+
+<div class="hero-pbi">
+    <div>
+        <h1><i class="fa-solid fa-chart-line"></i> {% trans "Suivi scolaire des élèves et enseignants" %}</h1>
+        <p>{% trans "Ministère de l'Éducation Nationale — République Islamique de Mauritanie" %}</p>
     </div>
+    <i class="fa-solid fa-school hero-icon"></i>
+</div>
 
-    <!-- PAGINATION -->
-    {% if table.page_obj.has_other_pages %}
-    <div class="pagination">
-
-        {% if table.page_obj.has_previous %}
-            <a href="?page=1&q={{ query }}&filter_month={{ current_month }}&filter_teacher={{ current_teacher }}&filter_type={{ current_type }}">
-                Début
-            </a>
-            <a href="?page={{ table.page_obj.previous_page_number }}&q={{ query }}&filter_month={{ current_month }}&filter_teacher={{ current_teacher }}&filter_type={{ current_type }}">
-                Précédent
-            </a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ table.page_obj.number }} / {{ table.page_obj.paginator.num_pages }}
-        </span>
-
-        {% if table.page_obj.has_next %}
-            <a href="?page={{ table.page_obj.next_page_number }}&q={{ query }}&filter_month={{ current_month }}&filter_teacher={{ current_teacher }}&filter_type={{ current_type }}">
-                Suivant
-            </a>
-            <a href="?page={{ table.page_obj.paginator.num_pages }}&q={{ query }}&filter_month={{ current_month }}&filter_teacher={{ current_teacher }}&filter_type={{ current_type }}">
-                Fin
-            </a>
-        {% endif %}
-
+<div class="stats-bar" id="stats-bar">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:linear-gradient(135deg,#36A2EB,#2980b9)"><i class="fa-solid fa-user-graduate"></i></div>
+        <div><div class="stat-number" id="st-eleves">—</div><div class="stat-label">{% trans "Élèves inscrits" %}</div></div>
     </div>
-    {% endif %}
-
+    <div class="stat-card">
+        <div class="stat-icon" style="background:linear-gradient(135deg,#2ecc71,#27ae60)"><i class="fa-solid fa-chalkboard-user"></i></div>
+        <div><div class="stat-number" id="st-ens">—</div><div class="stat-label">{% trans "Enseignants" %}</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)"><i class="fa-solid fa-calendar-xmark"></i></div>
+        <div><div class="stat-number" id="st-abs-e">—</div><div class="stat-label">{% trans "Absences élèves" %}</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div><div class="stat-number" id="st-abs-ens">—</div><div class="stat-label">{% trans "Absences enseignants" %}</div></div>
+    </div>
 </div>
-{% empty %}
-<div class="card" style="text-align:center;">
-    <i class="fa-solid fa-database" style="font-size:3rem;color:var(--primary)"></i>
-    <h3>Aucun formulaire disponible</h3>
-    <p>Veuillez ajouter des formulaires dans la configuration.</p>
-</div>
-{% endfor %}
 
+<div class="filters-pbi">
+    <label><i class="fa-solid fa-sliders"></i></label>
+    <select id="f-ecole"><option value="">{% trans "Toutes les écoles" %}</option></select>
+    <select id="f-mois"><option value="">{% trans "Tous les mois" %}</option></select>
+    <button onclick="loadCharts()"><i class="fa-solid fa-filter"></i> {% trans "Appliquer" %}</button>
+</div>
+
+<div class="loader" id="loader"><div class="spinner"></div><p style="color:var(--text-muted)">{% trans "Chargement des données…" %}</p></div>
+
+<div class="grid">
+    <div class="box"><div class="box-header"><i class="fa-solid fa-venus-mars"></i><h5>{% trans "Élèves par Sexe" %}</h5></div><div id="c1" class="pbi"></div></div>
+    <div class="box"><div class="box-header"><i class="fa-solid fa-ranking-star"></i><h5>{% trans "Top 10 Classes" %}</h5></div><div id="c2" class="pbi"></div></div>
+    <div class="box"><div class="box-header"><i class="fa-solid fa-chart-area"></i><h5>{% trans "Absences Quotidiennes Élèves" %}</h5></div><div id="c3" class="pbi"></div></div>
+    <div class="box"><div class="box-header"><i class="fa-solid fa-chart-column"></i><h5>{% trans "Absences Mensuelles Élèves" %}</h5></div><div id="c4" class="pbi"></div></div>
+    <div class="box"><div class="box-header"><i class="fa-solid fa-language"></i><h5>{% trans "Enseignants par Langue" %}</h5></div><div id="c5" class="pbi"></div></div>
+    <div class="box"><div class="box-header"><i class="fa-solid fa-users"></i><h5>{% trans "Enseignants par Sexe" %}</h5></div><div id="c6" class="pbi"></div></div>
+    <div class="box"><div class="box-header"><i class="fa-solid fa-circle-check"></i><h5>{% trans "Justification Absences Ens." %}</h5></div><div id="c7" class="pbi"></div></div>
+    <div class="box"><div class="box-header"><i class="fa-solid fa-chart-bar"></i><h5>{% trans "Abs. Quot. Enseignants" %}</h5></div><div id="c8" class="pbi"></div></div>
+    <div class="box"><div class="box-header"><i class="fa-solid fa-calendar-days"></i><h5>{% trans "Abs. Men. Enseignants" %}</h5></div><div id="c9" class="pbi"></div></div>
+</div>
+
+<div class="image-section">
+    <img src="https://picsum.photos/seed/mauritania-ecole/1400/400.jpg" alt="École en Mauritanie">
+    <div class="image-overlay">
+        <h2>{% trans "Ensemble pour l'avenir de nos enfants" %}</h2>
+        <p>{% trans "La réduction de l'absentéisme scolaire est un défi collectif. Chaque jour de classe compte pour la réussite de chaque élève." %}</p>
+        <div class="badges">
+            <span class="badge"><i class="fa-solid fa-check-double"></i> {% trans "Suivi en temps réel" %}</span>
+            <span class="badge"><i class="fa-solid fa-database"></i> {% trans "Données fiables" %}</span>
+            <span class="badge"><i class="fa-solid fa-shield-halved"></i> {% trans "Données sécurisées" %}</span>
+            <span class="badge"><i class="fa-solid fa-earth-africa"></i> {% trans "Tout le territoire" %}</span>
+        </div>
+    </div>
+</div>
+
+<img src="{% static 'img/Banniere.png' %}"
+     alt="École en Mauritanie"
+     style="display:block; margin:auto; max-width:100%;">
+
+<script>
+/* ═══════════════════════════════════════════
+   Utilitaires de formatage (MODIFIÉS POUR AR)
+   ═══════════════════════════════════════════ */
+
+// Tableau de mois bilingue
+const MOIS = {
+    fr: ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+    ar: ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
+};
+
+function fmtMois(val) {
+    if (!val) return '';
+    if (/^[A-Za-zÀ-ÿ]+$/.test(val)) return val;
+    let d = new Date(val);
+    if (!isNaN(d.getTime())) return MOIS[DJANGO_LANG][d.getMonth()];
+    let m = parseInt(String(val).split('-')[1]);
+    if (m >= 1 && m <= 12) return MOIS[DJANGO_LANG][m - 1];
+    return val;
+}
+
+function fmtJour(val) {
+    if (!val) return '';
+    let d = new Date(val);
+    if (!isNaN(d.getTime())) {
+        return String(d.getDate()).padStart(2,'0') + '/' +
+               String(d.getMonth()+1).padStart(2,'0') + '/' +
+               d.getFullYear();
+    }
+    return val;
+}
+
+/* ═══════════════════════════════════════════
+   Layouts Plotly
+   ═══════════════════════════════════════════ */
+const PLOTLY_LAYOUT = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { family: DJANGO_LANG === 'ar' ? 'Cairo, sans-serif' : 'Inter, system-ui, sans-serif', color: '#475569' },
+    margin: { t: 8, b: 45, l: 45, r: 15 },
+    xaxis: { gridcolor: 'rgba(0,0,0,0.04)', linecolor: 'rgba(0,0,0,0.06)', zeroline: false },
+    yaxis: { gridcolor: 'rgba(0,0,0,0.04)', linecolor: 'rgba(0,0,0,0.06)', zeroline: false },
+    legend: { font: { size: 11 }, orientation: 'h', x: 0.5, xanchor: 'center', y: -0.25 },
+};
+const PIE_LAYOUT = {
+    ...PLOTLY_LAYOUT,
+    margin: { t: 8, b: 8, l: 8, r: 8 },
+    showlegend: true,
+    legend: { font: { size: 11 }, orientation: 'h', x: 0.5, xanchor: 'center', y: -0.05 }
+};
+const PLOTLY_CFG = { displayModeBar: false, responsive: true };
+
+// Variable pour gérer l'inclinaison des textes des axes (RTL vs LTR)
+const TICK_ANGLE = DJANGO_LANG === 'ar' ? 40 : -40;
+
+let baseData = {};
+
+function initFilters(ecoles, mois) {
+    const sE = document.getElementById('f-ecole');
+    const sM = document.getElementById('f-mois');
+    if (sE.options.length <= 1) ecoles.forEach(e => { let o = document.createElement('option'); o.value = e; o.text = e; sE.appendChild(o); });
+    if (sM.options.length <= 1) mois.forEach(m => { let o = document.createElement('option'); o.value = m; o.text = fmtMois(m); sM.appendChild(o); }); // <-- Traduction des mois dans les filtres
+}
+
+function animateNumber(el, target) {
+    let start = 0; const duration = 800; const step = Math.max(1, Math.ceil(target / (duration / 16)));
+    const timer = setInterval(() => {
+        start += step;
+        if (start >= target) { start = target; clearInterval(timer); }
+        // Formatage des nombres en Arabe (ex: ١٢٣٤) ou Français (1 234)
+        el.textContent = start.toLocaleString(DJANGO_LANG === 'ar' ? 'ar-SA' : 'fr-FR');
+    }, 16);
+}
+
+function updateStats(d) {
+    const totalEleves = d.eleves_sexe.reduce((a, x) => a + x.total, 0);
+    const totalEns = d.ens_sexe.reduce((a, x) => a + x.total, 0);
+    const totalAbsE = d.abs_eleves_m_evol.reduce((a, x) => a + x.total, 0);
+    const totalAbsEns = d.abs_ens_m_evol.reduce((a, x) => a + x.just + x.nj, 0);
+    animateNumber(document.getElementById('st-eleves'), totalEleves);
+    animateNumber(document.getElementById('st-ens'), totalEns);
+    animateNumber(document.getElementById('st-abs-e'), totalAbsE);
+    animateNumber(document.getElementById('st-abs-ens'), totalAbsEns);
+}
+
+function loadCharts() {
+    let e = document.getElementById('f-ecole').value;
+    let m = document.getElementById('f-mois').value;
+    let url = '/api/home-data/?e=' + encodeURIComponent(e) + '&m=' + encodeURIComponent(m);
+
+    const grid = document.querySelector('.grid');
+    const loader = document.getElementById('loader');
+    grid.style.display = 'none';
+    loader.classList.add('active');
+
+    fetch(url).then(r => r.json()).then(d => {
+        if (!baseData.ecoles) initFilters(d.ecoles, d.mois);
+        baseData = d;
+        loader.classList.remove('active');
+        grid.style.display = 'grid';
+        updateStats(d);
+
+        /* 1 – Élèves par sexe (UTILISATION DES VARIABLES DJANGO_TRANS) */
+        if (d.eleves_sexe.length) Plotly.newPlot('c1', [{
+            labels: d.eleves_sexe.map(x => x.sexe === 'M' ? DJANGO_TRANS.homme : DJANGO_TRANS.femme),
+            values: d.eleves_sexe.map(x => x.total),
+            type: 'pie', hole: .45,
+            marker: { colors: ['#36A2EB', '#FF6384'], line: { color: '#fff', width: 2 } },
+            textinfo: 'label+percent', textfont: { size: 12 }
+        }], PIE_LAYOUT, PLOTLY_CFG);
+
+        /* 2 – Top 10 classes */
+        if (d.eleves_classe.length) Plotly.newPlot('c2', [{
+            x: d.eleves_classe.map(x => x.classe), y: d.eleves_classe.map(x => x.total),
+            type: 'bar', marker: { color: '#006233', line: { color: '#004d26', width: 1 }, cornerradius: 4 },
+            text: d.eleves_classe.map(x => x.total), textposition: 'outside', textfont: { size: 11, color: '#475569' }
+        }], { ...PLOTLY_LAYOUT, xaxis: { ...PLOTLY_LAYOUT.xaxis, tickangle: TICK_ANGLE }, bargap: 0.35 }, PLOTLY_CFG);
+
+        /* 3 – Absences quotidiennes élèves */
+        if (d.abs_eleves_q_evol.length) Plotly.newPlot('c3', [{
+            x: d.abs_eleves_q_evol.map(x => fmtJour(x.day)),
+            y: d.abs_eleves_q_evol.map(x => x.total),
+            type: 'scatter', mode: 'lines+markers', fill: 'tozeroy',
+            line: { color: '#e74c3c', width: 2.5, shape: 'spline' },
+            marker: { size: 7, color: '#fff', line: { color: '#e74c3c', width: 2 } },
+            fillcolor: 'rgba(231,76,60,0.08)',
+            hovertemplate: '%{x}<br>%{y} ' + DJANGO_TRANS.absences + '<extra></extra>'
+        }], { ...PLOTLY_LAYOUT, xaxis: { ...PLOTLY_LAYOUT.xaxis, tickangle: TICK_ANGLE, dtick: 'auto' } }, PLOTLY_CFG);
+
+        /* 4 – Absences mensuelles élèves */
+        if (d.abs_eleves_m_evol.length) {
+            // On trouve juste le chiffre maximum
+            const maxTotal = Math.max(...d.abs_eleves_m_evol.map(x => x.total));
+
+            Plotly.newPlot('c4', [{
+                x: d.abs_eleves_m_evol.map(x => fmtMois(x.month)),
+                y: d.abs_eleves_m_evol.map(x => x.total),
+                type: 'bar',
+                marker: {
+                    // ICI : on compare x.total avec maxTotal (des chiffres, pas des objets)
+                    color: d.abs_eleves_m_evol.map(x => x.total === maxTotal ? '#e74c3c' : '#006233'),
+                    line: { width: 0 }, cornerradius: 4
+                },
+                text: d.abs_eleves_m_evol.map(x => x.total),
+                textposition: 'outside',
+                textfont: { size: 11, color: '#475569' },
+                hovertemplate: '%{x}<br>%{y} ' + DJANGO_TRANS.absences + '<extra></extra>'
+            }], { ...PLOTLY_LAYOUT, xaxis: { ...PLOTLY_LAYOUT.xaxis, tickangle: 0 }, bargap: 0.35 }, PLOTLY_CFG);
+        }
+        /* 5 – Enseignants par langue */
+        if (d.ens_langue.length) Plotly.newPlot('c5', [{
+            labels: d.ens_langue.map(x => x.langue_travail), values: d.ens_langue.map(x => x.total),
+            type: 'pie', marker: { colors: ['#006233', '#2980b9', '#8e44ad', '#f39c12', '#1abc9c'], line: { color: '#fff', width: 2 } },
+            textinfo: 'label+percent', textfont: { size: 11 }
+        }], PIE_LAYOUT, PLOTLY_CFG);
+
+        /* 6 – Enseignants par sexe */
+        if (d.ens_sexe.length) Plotly.newPlot('c6', [{
+            labels: d.ens_sexe.map(x => x.sexe === 'M' ? DJANGO_TRANS.homme : DJANGO_TRANS.femme),
+            values: d.ens_sexe.map(x => x.total),
+            type: 'pie', hole: .45,
+            marker: { colors: ['#2ecc71', '#e74c3c'], line: { color: '#fff', width: 2 } },
+            textinfo: 'label+percent', textfont: { size: 12 }
+        }], PIE_LAYOUT, PLOTLY_CFG);
+
+        /* 7 – Justification enseignants */
+        let p = d.abs_ens_q_pie;
+        if (p && (p.Justifiées > 0 || p["Non Justifiées"] > 0)) Plotly.newPlot('c7', [{
+            labels: [DJANGO_TRANS.justifiees, DJANGO_TRANS.non_justifiees],
+            values: [p.Justifiées, p["Non Justifiées"]],
+            type: 'pie', hole: .45,
+            marker: { colors: ['#2ecc71', '#e74c3c'], line: { color: '#fff', width: 2 } },
+            textinfo: 'label+percent', textfont: { size: 12 }
+        }], PIE_LAYOUT, PLOTLY_CFG);
+
+        /* 8 – Absences quotidiennes enseignants */
+        if (d.abs_ens_q_evol.length) Plotly.newPlot('c8', [
+            { x: d.abs_ens_q_evol.map(x => fmtJour(x.day)), y: d.abs_ens_q_evol.map(x => x.just), name: DJANGO_TRANS.justifiees, type: 'bar', marker: { color: '#27ae60', cornerradius: 2 } },
+            { x: d.abs_ens_q_evol.map(x => fmtJour(x.day)), y: d.abs_ens_q_evol.map(x => x.nj), name: DJANGO_TRANS.non_justifiees, type: 'bar', marker: { color: '#e74c3c', cornerradius: 2 } }
+        ], { ...PLOTLY_LAYOUT, barmode: 'stack', bargap: 0.3, xaxis: { ...PLOTLY_LAYOUT.xaxis, tickangle: TICK_ANGLE } }, PLOTLY_CFG);
+
+        /* 9 – Absences mensuelles enseignants */
+        if (d.abs_ens_m_evol.length) Plotly.newPlot('c9', [
+            { x: d.abs_ens_m_evol.map(x => fmtMois(x.month)), y: d.abs_ens_m_evol.map(x => x.just), name: DJANGO_TRANS.justifiees, type: 'bar', marker: { color: '#27ae60', cornerradius: 2 } },
+            { x: d.abs_ens_m_evol.map(x => fmtMois(x.month)), y: d.abs_ens_m_evol.map(x => x.nj), name: DJANGO_TRANS.non_justifiees, type: 'bar', marker: { color: '#e74c3c', cornerradius: 2 } }
+        ], { ...PLOTLY_LAYOUT, barmode: 'stack', bargap: 0.3, xaxis: { ...PLOTLY_LAYOUT.xaxis, tickangle: 0, dtick: 1 } }, PLOTLY_CFG);
+
+    }).catch(err => {
+        loader.classList.remove('active');
+        grid.style.display = 'grid';
+        console.error(err);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', loadCharts);
+</script>
 {% endblock %}

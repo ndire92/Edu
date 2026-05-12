@@ -1,364 +1,303 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier Mon Profil - Edu Dashboard</title>
-    
-    <!-- Polices & Icônes -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        /* =========================
-           VARIABLES (Cohérence Dashboard)
-        ========================= */
-        :root {
-            --primary: #006233;
-            --primary-dark: #004d26;
-            --accent-yellow: #FFCD00;
-            --bg-soft: #f8fafc;
-            --text-main: #334155;
-            --border: #e2e8f0;
-            --white: #ffffff;
-            --danger: #ef4444;
-            --success: #10b981;
-        }
+{% load i18n %}
+{% load static %}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
+{% block content %}
+<style>
+:root {
+    --primary: #006233;
+    --primary-dark: #004d26;
+    --accent-yellow: #FFCD00;
+    --bg-soft: #f8fafc;
+    --text-main: #334155;
+    --border: #e2e8f0;
+    --white: #ffffff;
+    --danger: #ef4444;
+    --success: #10b981;
+    --radius: 12px;
+    --shadow: 0 4px 6px rgba(0,0,0,0.05);
+    --transition: all 0.3s ease;
+}
 
-        /* =========================
-           CARTE PRINCIPALE
-        ========================= */
-        .profile-container {
-            width: 100%;
-            max-width: 800px; /* Un peu plus large que Login */
-        }
+/* =========================
+   BASE
+========================= */
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
 
-        .profile-card {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            text-align: center;
-            border-top: 5px solid var(--primary);
-        }
+/* =========================
+   CONTAINER & CARD
+========================= */
+.profile-container {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
 
-        /* Header Carte */
-        .profile-header {
-            margin-bottom: 40px;
-        }
-        .profile-icon {
-            width: 70px; height: 70px;
-            background: #e0e7ff;
-            color: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 20px;
-        }
-        .profile-header h2 {
-            margin: 0;
-            font-size: 2rem;
-            color: var(--text-main);
-            font-weight: 700;
-        }
-        .profile-header p {
-            margin: 0;
-            color: #64748b;
-            font-size: 1rem;
-        }
+.profile-card {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    text-align: center;
+    border-top: 5px solid var(--primary);
+}
 
-        /* =========================
-           SECTION AVATAR
-        ========================= */
-        .avatar-section {
-            margin-bottom: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+/* =========================
+   HEADER
+========================= */
+.profile-header { margin-bottom: 40px; }
+.profile-icon {
+    width: 70px; height: 70px;
+    background: #e0e7ff;
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 20px;
+}
+.profile-header h2 {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--text-main);
+    font-weight: 700;
+    word-wrap: break-word;
+}
+.profile-header p { margin: 0; color: #64748b; font-size: 1rem; }
 
-        .avatar-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 4px solid var(--bg-soft);
-            object-fit: cover;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
+/* =========================
+   AVATAR
+========================= */
+.avatar-section {
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.avatar-preview {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    border: 4px solid var(--bg-soft);
+    object-fit: cover;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+.file-upload-wrapper { position: relative; display: inline-block; cursor: pointer; }
+.file-upload input[type="file"] {
+    position: absolute; width: 100%; height: 100%;
+    top: 0; left: 0; opacity: 0; cursor: pointer;
+}
+.btn-change-photo {
+    padding: 10px 25px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    font-weight: 600;
+    color: var(--primary);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    transition: var(--transition);
+    display: flex; align-items: center; gap: 10px;
+}
+.btn-change-photo:hover {
+    border-color: var(--primary);
+    background: var(--bg-soft);
+    transform: translateY(-2px);
+}
 
-        .file-upload-wrapper {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-        }
-        .file-upload-wrapper input[type="file"] {
-            position: absolute;
-            width: 100%; height: 100%;
-            top: 0; left: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-        .btn-change-photo {
-            padding: 10px 25px;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            font-weight: 600;
-            color: var(--primary);
-            box-shadow: var(--shadow);
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .btn-change-photo:hover {
-            border-color: var(--primary);
-            background: #f8fafc;
-            transform: translateY(-2px);
-        }
+/* =========================
+   FORM
+========================= */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 25px;
+}
+.form-group { text-align: left; margin-bottom: 25px; }
+.form-group label {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+.form-group label i { color: var(--primary); }
 
-        /* =========================
-           CHAMPS DU FORMULAIRE (Grille 2 Colonnes)
-        ========================= */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 Colonnes égales */
-            gap: 25px;
-            margin-bottom: 25px;
-        }
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--text-main);
+    background: var(--bg-soft);
+    transition: var(--transition);
+    outline: none;
+    box-sizing: border-box;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+    background: var(--white);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+.form-group textarea { min-height: 100px; resize: vertical; }
 
-        .form-group {
-            text-align: left;
-            margin-bottom: 25px;
-        }
-        
-        /* Labels */
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .form-group label i {
-            color: var(--primary);
-        }
+/* =========================
+   BUTTONS
+========================= */
+.btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+    margin-top: 20px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px rgba(79, 70, 229, 0.3);
+}
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 
-        /* Inputs (Style Global) */
-        /* On cible les inputs rendus par Django {{ form.field }} */
-        .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group input[type="password"],
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 14px 15px; /* Pas de padding gauche pour icône (optionnel) */
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            color: var(--text-main);
-            background: var(--bg-soft);
-            transition: all 0.3s;
-            outline: none;
-            box-sizing: border-box; /* Important pour width 100% */
-        }
-        
-        /* Focus */
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            background: white;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
+/* =========================
+   ERROR BOX
+========================= */
+.error-box {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+    border-left: 4px solid var(--danger);
+    display: flex; align-items: center; gap: 15px;
+    text-align: left;
+}
+.error-box i { color: var(--danger); font-size: 1.2rem; }
 
-        /* Textarea spécifique */
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+    .profile-container { padding: 10px; }
+    .profile-card { padding: 30px 20px; }
+    .form-row { grid-template-columns: 1fr; }
+    .avatar-preview { width: 90px; height: 90px; }
+}
 
-        /* =========================
-           BOUTON SUBMIT
-        ========================= */
-        .btn-submit {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 25px rgba(79, 70, 229, 0.3);
-        }
-
-        /* =========================
-           MESSAGES D'ERREUR
-        ========================= */
-        .error-box {
-            background-color: #fee2e2;
-            color: #991b1b;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            font-size: 0.95rem;
-            border: 1px solid #fecaca;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-align: left;
-        }
-        .error-box i { color: #ef4444; font-size: 1.2rem; }
-
-        /* =========================
-           RESPONSIVE MOBILE
-        ========================= */
-        @media (max-width: 768px) {
-            .profile-container { padding: 10px; }
-            .profile-card { padding: 30px 20px; }
-            .form-row { grid-template-columns: 1fr; } /* Une seule colonne sur mobile */
-        }
-    </style>
+</style>
 </head>
 <body>
 
-    <div class="profile-container">
-        
-        <div class="profile-card">
-            
-            <!-- HEADER -->
-            <div class="profile-header">
-                <div class="profile-icon">
-                    <i class="fa-solid fa-user-pen"></i>
-                </div>
-                <h2>Modifier Mon Profil</h2>
-                <p>Mettez à jour vos informations ci-dessous.</p>
+<div class="profile-container">
+    <div class="profile-card">
+        <!-- HEADER -->
+        <div class="profile-header">
+            <div class="profile-icon">
+                <i class="fa-solid fa-user-pen"></i>
             </div>
-
-            <!-- MESSAGES D'ERREUR (Si Django envoie) -->
-            {% if form.non_field_errors %}
-                <div class="error-box">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <div>
-                        {% for error in form.non_field_errors %}
-                            <p style="margin:0 0 5px 0;">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-
-            <!-- FORMULAIRE -->
-            <!-- Important : enctype="multipart/form-data" requis pour l'image -->
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-
-                <!-- 1. SECTION AVATAR -->
-                <div class="avatar-section">
-                    <!-- Image Actuelle -->
-                    <img src="{{ request.user.profile_image.url }}" class="avatar-preview" alt="Votre photo">
-                    
-                    <!-- Bouton Upload personnalisé -->
-                    <label class="file-upload-wrapper">
-                        <input type="file" name="profile_image" accept="image/*">
-                        <div class="btn-change-photo">
-                            <i class="fa-solid fa-camera"></i> Changer la photo
-                        </div>
-                    </label>
-                </div>
-
-                <!-- 2. NOM & PRÉNOM (2 Colonnes) -->
-                <div class="form-row">
-                    <!-- Nom -->
-                    <div class="form-group">
-                        <label for="id_last_name"><i class="fa-solid fa-user"></i> Nom</label>
-                        {{ form.last_name }} 
-                        <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">{{ form.last_name.errors.0 }}</p>
-                    </div>
-
-                    <!-- Prénom -->
-                    <div class="form-group">
-                        <label for="id_first_name"><i class="fa-solid fa-user-tag"></i> Prénom</label>
-                        {{ form.first_name }}
-                        <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">{{ form.first_name.errors.0 }}</p>
-                    </div>
-                </div>
-
-                <!-- 3. EMAIL & TÉLÉPHONE (2 Colonnes) -->
-                <div class="form-row">
-                    <!-- Email -->
-                    <div class="form-group">
-                        <label for="id_email"><i class="fa-solid fa-envelope"></i> Adresse Email</label>
-                        {{ form.email }}
-                        <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">{{ form.email.errors.0 }}</p>
-                    </div>
-
-                    <!-- Téléphone -->
-                    <div class="form-group">
-                        <label for="id_phone"><i class="fa-solid fa-phone"></i> Téléphone</label>
-                        {{ form.phone }}
-                        <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">{{ form.phone.errors.0 }}</p>
-                    </div>
-                </div>
-
-                <!-- 4. ADRESSE (Largeur complète) -->
-                <div class="form-group">
-                    <label for="id_address"><i class="fa-solid fa-location-dot"></i> Adresse</label>
-                    {{ form.address }}
-                    <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">{{ form.address.errors.0 }}</p>
-                </div>
-
-                <!-- 5. MOT DE PASSE (Largeur complète) -->
-                <!-- Note : Si votre form inclut password, décommentez cette partie -->
-                <!-- <div class="form-group">
-                    <label for="id_password"><i class="fa-solid fa-lock"></i> Nouveau Mot de passe</label>
-                    {{ form.password }}
-                    <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">{{ form.password.errors.0 }}</p>
-                </div> -->
-
-                <!-- BOUTON ENREGISTRER -->
-                <button type="submit" class="btn-submit">
-                    <i class="fa-solid fa-save"></i> Enregistrer les modifications
-                </button>
-            </form>
-
-            <!-- LIEN ANNULATION (Optionnel) -->
-            <div style="margin-top: 20px;">
-                <a href="{% url 'dashboard' %}" style="color: #64748b; text-decoration: none; font-weight: 500;">
-                    <i class="fa-solid fa-arrow-left"></i> Retour au Dashboard
-                </a>
-            </div>
+            <h2>{% trans "Modifier Mon Profil" %}</h2>
+            <p>{% trans "Mettez à jour vos informations ci-dessous." %}</p>
         </div>
+
+        <!-- ERREURS -->
+        {% if form.non_field_errors %}
+            <div class="error-box">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- AVATAR -->
+            <div class="avatar-section">
+                {% if user.profile_image and user.profile_image.name %}
+                    <img src="{{ user.profile_image.url }}" class="avatar-preview">
+                {% else %}
+                    <img src="{% static 'img/default-avatar.png' %}" class="avatar-preview">
+                {% endif %}
+
+                <label class="file-upload-wrapper">
+                    <input type="file" name="profile_image" accept="image/*">
+                    <div class="btn-change-photo">
+                        <i class="fa-solid fa-camera"></i>
+                        {% trans "Changer la photo" %}
+                    </div>
+                </label>
+            </div>
+
+            <!-- CHAMPS DU FORMULAIRE -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>{% trans "Nom" %}</label>
+                    {{ form.last_name }}
+                </div>
+
+                <div class="form-group">
+                    <label>{% trans "Prénom" %}</label>
+                    {{ form.first_name }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>{% trans "Email" %}</label>
+                    {{ form.email }}
+                </div>
+
+                <div class="form-group">
+                    <label>{% trans "Téléphone" %}</label>
+                    {{ form.phone }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>{% trans "Adresse" %}</label>
+                {{ form.address }}
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fa-solid fa-save"></i>
+                {% trans "Enregistrer" %}
+            </button>
+        </form>
+
     </div>
-</body>
-</html>
+
+{% endblock %}

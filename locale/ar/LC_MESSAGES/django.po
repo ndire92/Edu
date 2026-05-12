@@ -1,0 +1,457 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Accueil"
+msgstr "الرئيسية"
+
+msgid "Blog"
+msgstr "المدونة"
+
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+msgid "Tableau de Board"
+msgstr "لوحة التحكم"
+
+msgid "Mon Profil"
+msgstr "ملفي الشخصي"
+
+msgid "Espace Personnel"
+msgstr "فضائي الشخصي"
+
+msgid "Déconnexion"
+msgstr "تسجيل الخروج"
+
+msgid "Gestion Scolaire"
+msgstr "إدارة المدرسة"
+
+msgid "Suivi des absences"
+msgstr "متابعة الغيابات"
+
+msgid "Suivi scolaire des élèves et enseignants"
+msgstr "متابعة التلاميذ والمعلمين"
+
+msgid "Système actif"
+msgstr "النظام نشط"
+
+msgid "Profil"
+msgstr "الملف الشخصي"
+
+msgid "Nouvel Article"
+msgstr "مقال جديد"
+
+msgid "Liste des Articles"
+msgstr "قائمة المقالات"
+
+msgid "Admin"
+msgstr "الإدارة"
+
+msgid "Admin Panel"
+msgstr "لوحة الإدارة"
+
+msgid "Observatoire des Absences Scolaires"
+msgstr "مرصد الغيابات المدرسية"
+
+msgid "Ministère de l'Éducation Nationale — République Islamique de Mauritanie"
+msgstr "وزارة التربية الوطنية — الجمهورية الإسلامية الموريتانية"
+
+msgid "Élèves inscrits"
+msgstr "التلاميذ المسجلون"
+
+msgid "Enseignants"
+msgstr "المعلمون"
+
+msgid "Absences élèves"
+msgstr "غيابات التلاميذ"
+
+msgid "Absences enseignants"
+msgstr "غيابات المعلمين"
+
+msgid "Toutes les écoles"
+msgstr "جميع المدارس"
+
+msgid "Tous les mois"
+msgstr "جميع الأشهر"
+
+msgid "Appliquer"
+msgstr "تطبيق"
+
+msgid "Chargement des données…"
+msgstr "جاري تحميل البيانات…"
+
+msgid "Chargement des données..."
+msgstr "جاري تحميل البيانات..."
+
+msgid "Élèves par Sexe"
+msgstr "التلاميذ حسب الجنس"
+
+msgid "Top 10 Classes"
+msgstr "أفضل 10 فصول"
+
+msgid "Absences Quotidiennes Élèves"
+msgstr "الغيابات اليومية للتلاميذ"
+
+msgid "Absences Mensuelles Élèves"
+msgstr "الغيابات الشهرية للتلاميذ"
+
+msgid "Enseignants par Langue"
+msgstr "المعلمون حسب اللغة"
+
+msgid "Enseignants par Sexe"
+msgstr "المعلمون حسب الجنس"
+
+msgid "Justification Absences Ens."
+msgstr "تبرير غيابات المعلمين"
+
+msgid "Abs. Quot. Enseignants"
+msgstr "الغيابات اليومي للمعلمين"
+
+msgid "Abs. Men. Enseignants"
+msgstr "الغيابات الشهري للمعلمين"
+
+msgid "Ensemble pour l'avenir de nos enfants"
+msgstr "معاً من أجل مستقبل أطفالنا"
+
+msgid "La réduction de l'absentéisme scolaire est un défi collectif. Chaque jour de classe compte pour la réussite de chaque élève."
+msgstr "تقليل الغياب المدرسي تحدٍ جماعي. كل يوم دراسي مهم لنجاح كل تلميذ."
+
+msgid "Suivi en temps réel"
+msgstr "متابعة في الوقت الفعلي"
+
+msgid "Données fiables"
+msgstr "بيانات موثوقة"
+
+msgid "Données sécurisées"
+msgstr "بيانات آمنة"
+
+msgid "Tout le territoire"
+msgstr "كافة أنحاء البلاد"
+
+msgid "Homme"
+msgstr "ذكر"
+
+msgid "Femme"
+msgstr "أنثى"
+
+msgid "Justifiées"
+msgstr "مبررة"
+
+msgid "Non Justifiées"
+msgstr "غير مبررة"
+
+msgid "absences"
+msgstr "غيابات"
+
+msgid "Total Réponses"
+msgstr "إجمالي الردود"
+
+msgid "Présents"
+msgstr "الحاضرون"
+
+msgid "Absents"
+msgstr "الغائبون"
+
+msgid "Formulaires"
+msgstr "النماذج"
+
+msgid "Prêt à analyser ?"
+msgstr "هل أنت مستعد للتحليل؟"
+
+msgid "Les données s'afficheront ici dès que vous cliquerez sur un formulaire dans le menu."
+msgstr "ستظهر البيانات هنا عند اختيار نموذج من القائمة."
+
+msgid "Supprimé avec succès."
+msgstr "تم الحذف بنجاح"
+
+msgid "Erreur lors de la suppression"
+msgstr "حدث خطأ أثناء الحذف"
+
+msgid "Modification enregistrée !"
+msgstr "تم حفظ التعديل"
+
+msgid "Erreur de chargement"
+msgstr "خطأ في التحميل"
+
+msgid "Aucun tableau."
+msgstr "لا توجد بيانات"
+
+msgid "Export CSV réussi !"
+msgstr "تم تصدير CSV بنجاح"
+
+msgid "Export Excel réussi !"
+msgstr "تم تصدير Excel بنجاح"
+
+msgid "Génération..."
+msgstr "جاري الإنشاء..."
+
+msgid "Enregistrer"
+msgstr "حفظ"
+
+msgid "Actions"
+msgstr "إجراءات"
+
+msgid "Exporter Excel"
+msgstr "تصدير Excel"
+
+msgid "Exporter CSV"
+msgstr "تصدير CSV"
+
+msgid "Registre des Élèves"
+msgstr "سجل التلاميذ"
+
+msgid "N° Registre"
+msgstr "رقم السجل"
+
+msgid "Nom & Prénom"
+msgstr "الاسم الكامل"
+
+msgid "Sexe"
+msgstr "الجنس"
+
+msgid "Téléphone"
+msgstr "الهاتف"
+
+msgid "Observations"
+msgstr "ملاحظات"
+
+msgid "Enseignant"
+msgstr "المعلم"
+
+msgid "École"
+msgstr "المدرسة"
+
+msgid "Absences Quotidiennes (Élèves)"
+msgstr "الغيابات اليومية (التلاميذ)"
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Élève"
+msgstr "التلميذ"
+
+msgid "Classe"
+msgstr "الفصل"
+
+msgid "Total Abs."
+msgstr "إجمالي الغيابات"
+
+msgid "Absences Mensuelles (Élèves)"
+msgstr "الغيابات الشهرية (التلاميذ)"
+
+msgid "Mois"
+msgstr "الشهر"
+
+msgid "Registre Enseignants"
+msgstr "سجل المعلمين"
+
+msgid "Matricule"
+msgstr "رقم التعريف"
+
+msgid "Langue"
+msgstr "اللغة"
+
+msgid "Absences Quot. (Enseignants)"
+msgstr "الغيابات اليومي (المعلمون)"
+
+msgid "Non Just."
+msgstr "غير مبررة"
+
+msgid "Absences Mens. (Enseignants)"
+msgstr "الغيابات الشهري (المعلمون)"
+
+msgid "Modifier la donnée"
+msgstr "تعديل البيانات"
+
+msgid "Confirmation"
+msgstr "تأكيد"
+
+msgid "Êtes-vous sûr de vouloir supprimer définitivement cet enregistrement ?"
+msgstr "هل أنت متأكد من حذف هذا السجل نهائياً؟"
+
+msgid "Annuler"
+msgstr "إلغاء"
+
+msgid "Oui, Supprimer"
+msgstr "نعم، حذف"
+
+msgid "Bienvenue"
+msgstr "مرحباً"
+
+msgid "Sélectionnez un formulaire dans le menu de gauche pour voir les détails."
+msgstr "اختر نموذجاً من القائمة لعرض التفاصيل."
+
+msgid "Chargement..."
+msgstr "جاري التحميل..."
+
+msgid "Panneau Administrateur"
+msgstr "لوحة تحكم المشرف العام"
+
+msgid "Gérez les droits d'accès et les comptes utilisateurs."
+msgstr "إدارة صلاحيات الوصول وحسابات المستخدمين."
+
+msgid "Rechercher par nom, email, téléphone..."
+msgstr "البحث بالاسم، البريد الإلكتروني، الهاتف..."
+
+msgid "Effacer la recherche"
+msgstr "مسح البحث"
+
+msgid "Utilisateur"
+msgstr "المستخدم"
+
+msgid "Contact"
+msgstr "التواصل"
+
+msgid "Rôle"
+msgstr "الدور"
+
+msgid "Statut"
+msgstr "الحالة"
+
+msgid "Inscription"
+msgstr "التسجيل"
+
+msgid "Non renseigné"
+msgstr "غير محدد"
+
+msgid "Administrateur"
+msgstr "مدير"
+
+msgid "Inspecteur IEF"
+msgstr "مفتش IEF"
+
+msgid "Directeur"
+msgstr "مدير مدرسة"
+
+msgid "Actif"
+msgstr "نشط"
+
+msgid "Inactif"
+msgstr "غير نشط"
+
+msgid "Aucun utilisateur trouvé."
+msgstr "لم يتم العثور على مستخدمين."
+
+msgid "ATTENTION ! Êtes-vous sûr ?"
+msgstr "انتبه ! هل أنت متأكد؟"
+
+msgid "Notifications"
+msgstr "الإشعارات"
+
+msgid "Nouvel utilisateur"
+msgstr "مستخدم جديد"
+
+msgid "Aucune nouvelle inscription"
+msgstr "لا توجد تسجيلات جديدة"
+
+msgid "Fermer"
+msgstr "إغلاق"
+
+msgid "Retour au Dashboard"
+msgstr "العودة للوحة التحكم"
+
+msgid "Modifier"
+msgstr "تعديل"
+
+msgid "Activer/Désactiver"
+msgstr "تفعيل/تعطيل"
+
+msgid "Supprimer"
+msgstr "حذف"
+
+msgid "Tableaux"
+msgstr "اللوحات"
+
+msgid "Blog - Edu Dashboard"
+msgstr "المدونة - لوحة تحكم إيدو"
+
+msgid "Le Blog Éducatif"
+msgstr "المدونة التعليمية"
+
+msgid "Découvrez nos dernières actualités, ressources pédagogiques et réussites."
+msgstr "اكتشف آخر أخبارنا ومواردنا التعليمية وإنجازاتنا."
+
+msgid "Écrire un article"
+msgstr "كتابة مقال"
+
+msgid "Image par défaut"
+msgstr "صورة افتراضية"
+
+msgid "Modifier article"
+msgstr "تعديل المقال"
+
+msgid "Supprimer article"
+msgstr "حذف المقال"
+
+msgid "Êtes-vous sûr de vouloir supprimer cet article ?"
+msgstr "هل أنت متأكد من حذف هذا المقال؟"
+
+msgid "Lire la suite"
+msgstr "اقرأ المزيد"
+
+msgid "Aucun article publié pour le moment."
+msgstr "لا توجد مقالات منشورة حالياً."
+
+msgid "Début"
+msgstr "البداية"
+
+msgid "Précédent"
+msgstr "السابق"
+
+msgid "Suivant"
+msgstr "التالي"
+
+msgid "Fin"
+msgstr "النهاية"
+
+msgid "Page %(page_obj.number)s / %(page_obj.paginator.num_pages)s"
+msgstr "صفحة %(page_obj.number)s / %(page_obj.paginator.num_pages)s"
+
+msgid "Vidéos à la une"
+msgstr "فيديوهات مميزة"
+
+msgid "Retrouvez nos dernières productions pédagogiques en vidéo."
+msgstr "اطلع على أحدث إنتاجاتنا التعليمية مصورة."
+
+msgid "Aucune vidéo disponible."
+msgstr "لا توجد فيديوهات متاحة."
+
+msgid "Modifier la vidéo"
+msgstr "تعديل الفيديو"
+
+msgid "Supprimer cette vidéo"
+msgstr "حذف هذا الفيديو"
+
+msgid "Êtes-vous sûr de vouloir supprimer cette vidéo ?"
+msgstr "هل أنت متأكد من حذف هذا الفيديو؟"
+
+msgid "Connexion - Edu Dashboard"
+msgstr "تسجيل الدخول - لوحة تحكم إيدو"
+
+msgid "Connectez-vous pour accéder à votre espace"
+msgstr "سجل دخولك للوصول إلى حسابك"
+
+msgid "Adresse e-mail"
+msgstr "البريد الإلكتروني"
+
+msgid "Mot de passe"
+msgstr "كلمة المرور"
+
+msgid "Mot de passe oublié ?"
+msgstr "نسيت كلمة المرور؟"
+
+msgid "Se connecter"
+msgstr "تسجيل الدخول"
+
+msgid "Pas encore de compte ?"
+msgstr "ليس لديك حساب؟"
+
+msgid "Créer un compte"
+msgstr "إنشاء حساب"

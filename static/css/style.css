@@ -3,10 +3,10 @@
         ========================= */
         :root {
             /* Vert Mauritanie (Partie supérieure du drapeau) */
-            --primary: #006233; 
+            --primary: #006233;
             --primary-dark: #004d26;
             --accent-yellow: #FFCD00; /* Jaune Mauritanie (Partie inférieure) */
-            
+
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
             --text-main: #1e293b;
@@ -150,14 +150,14 @@
         .btn-lang {
             background: #f1f5f9;
             border: 1px solid var(--border);
-            padding: 8px 15px; 
+            padding: 8px 15px;
             border-radius: 20px;
-             cursor: pointer; 
+             cursor: pointer;
              font-weight: 600;
               color: var(--primary);
                transition: all 0.2s;
-            
-            width: 120px;  
+
+            width: 120px;
             justify-content: center;    /* important */
             min-width: 0;
             display: flex;
@@ -198,7 +198,7 @@
       .navbar {
         padding: 0.5rem 1rem;
         height: 60px;
-     
+
 
       }
 
@@ -210,7 +210,7 @@
         left: 0;
         width: 100%;
         background: linear-gradient(90deg, #006233 0%, #006233 75%, #FFCD00 100%);
-      
+
         padding: 10px 0;
         box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         z-index: 9999;
@@ -253,13 +253,13 @@
             gap: 15px;
             margin-bottom: 10px;
         }
-        .main-icon { 
-            color: var(--accent-yellow); 
-            animation: float 3s ease-in-out infinite; 
+        .main-icon {
+            color: var(--accent-yellow);
+            animation: float 3s ease-in-out infinite;
         }
         @keyframes float {
-            0% { transform: translateY(0px); } 
-            50% { transform: translateY(-10px); } 
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
             100% { transform: translateY(0px); }
         }
 
@@ -277,10 +277,10 @@
             transition: transform 0.3s;
         }
         .card:hover { transform: translateY(-3px); }
-        
+
         .card h2 {
             margin-top: 0; color: var(--text-main); font-size: 1.6rem;
-            border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; 
+            border-bottom: 2px solid #f1f5f9; padding-bottom: 20px;
             margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;
         }
         .card h2 small {
@@ -300,8 +300,8 @@
             color: #94a3b8;
         }
         input[type="text"] {
-            width: 100%; padding: 14px 45px 14px 14px; 
-            border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; 
+            width: 100%; padding: 14px 45px 14px 14px;
+            border: 1px solid var(--border); border-radius: 12px; font-size: 1rem;
             background: #f8fafc; transition: 0.3s;
         }
         input[type="text"]:focus {
@@ -309,7 +309,7 @@
             box-shadow: 0 0 0 3px rgba(0, 98, 51, 0.1); /* Ombre verte */
             outline: none;
         }
-        
+
         /* Bouton Filtrer : Dégradé Drapeau Mauritanie */
         .btn-search {
             background: linear-gradient(135deg, var(--primary), var(--accent-yellow));
@@ -326,7 +326,7 @@
 
         .filter-bar {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px; background: #f1f5f9; padding: 20px; 
+            gap: 20px; background: #f1f5f9; padding: 20px;
             border-radius: 16px;
             margin-bottom: 40px; border: 1px solid var(--border);
         }
@@ -447,18 +447,18 @@
             text-align: center;
             margin-bottom: 50px;
         }
-        .blog-header h1 { 
-            font-size: 2.5rem; 
-            font-weight: 800; 
-            color: var(--text-main); 
+        .blog-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
             margin: 0 0 10px 0;
         }
-        .blog-header p { 
-            color: var(--text-muted); 
-            font-size: 1.1rem; 
+        .blog-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
             margin: 0;
         }
-        
+
         /* Bouton Créer */
         .btn-create {
             display: inline-block;
@@ -552,7 +552,7 @@
         ========================= */
         .post-actions {
             display: flex;
-            justify-content: flex-end; 
+            justify-content: flex-end;
             gap: 10px;
             margin-bottom: 15px;
             padding-bottom: 15px;
@@ -581,7 +581,7 @@
 
         /* Lien Lire la suite */
         .btn-read {
-            margin-top: auto; 
+            margin-top: auto;
             text-align: center;
             padding: 12px;
             background: #f8fafc;
@@ -836,7 +836,7 @@
 
             /* Boutons empilés verticalement et pleine largeur */
             .detail-actions {
-                flex-direction: column; 
+                flex-direction: column;
                 padding: 20px;
                 gap: 10px;
             }
@@ -1000,3 +1000,4 @@
     .video-grid { grid-template-columns: 1fr; }
     .videos-section { margin-top: 20px; margin-bottom: 40px; }
 }
+

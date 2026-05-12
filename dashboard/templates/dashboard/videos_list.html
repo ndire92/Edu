@@ -1,18 +1,22 @@
 {% extends "base.html" %}
+{% load i18n %}
+
 {% block content %}
 
-<h1>Vidéos</h1>
+<h1 class="page-title">{% trans "Videos" %}</h1>
 
 <div class="video-grid">
     {% for post in videos %}
         <div class="video-card">
             <a href="{% url 'video_detail' post.slug %}">
                 <h3>{{ post.title }}</h3>
-                <p>{{ post.created_at|date:"d M Y" }}</p>
+                <p>
+                    {{ post.created_at|date:"d M Y" }}
+                </p>
             </a>
         </div>
     {% empty %}
-        <p>Aucune vidéo.</p>
+        <p class="empty-state">{% trans "No videos available." %}</p>
     {% endfor %}
 </div>
 

@@ -19,11 +19,16 @@ def send_activation_email(sender, instance, **kwargs):
         message = f"""
 Bonjour {instance.first_name},
 
-Votre compte a été activé par l’administrateur.
+Nous vous informons que votre compte a été activé avec succès par l’administrateur.
 
-👉 Connectez-vous ici : {settings.SITE_URL}/login/
+Vous pouvez désormais accéder à votre espace personnel via le lien ci-dessous :
 
-Merci !
+👉 https://emnie.pythonanywhere.com/login/
+
+Nous vous souhaitons une excellente utilisation de la plateforme.
+
+Cordialement,
+L’équipe Edu
 """
 
         send_mail(

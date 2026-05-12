@@ -1,11 +1,13 @@
-"""
-Django settings for Gestion_EducMNIE project.
-"""
 
 from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from decouple import config
 
+# Charge les variables d'environnement (.env)
+load_dotenv()
+from django.utils.translation import gettext_lazy as _
 
 # ==============================
 # BASE DIR
@@ -20,7 +22,9 @@ SECRET_KEY = 'django-insecure-6u3=j@exr%yub^wxq=^1qsqdw3=_b+fv@xax^gh-5#3360bw)h
 
 DEBUG = True
 
-ALLOWED_HOSTS = []  # En production : ['127.0.0.1', 'tondomaine.com']
+ALLOWED_HOSTS = ALLOWED_HOSTS = [
+    'emnie.pythonanywhere.com',
+] # En production : ['127.0.0.1', 'tondomaine.com']
 
 
 # ==============================
@@ -33,23 +37,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     # Apps locales
    'dashboard.apps.DashboardConfig',
- 
-
-
     # Apps tierces
     'tinymce',
 ]
 
-SITE_URL = "http://127.0.0.1:8000"
+SITE_URL = "https://emnie.pythonanywhere.com/login/"
 # ==============================
 # MIDDLEWARE
 # ==============================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    'django.middleware.locale.LocaleMiddleware',  # ✅ AJOUT ICI
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -57,15 +60,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
 # ==============================
 # URLS / WSGI
 # ==============================
 ROOT_URLCONF = 'Gestion_EducMNIE.urls'
 
 WSGI_APPLICATION = 'Gestion_EducMNIE.wsgi.application'
-
-
+KOBO_API_TOKEN = os.environ.get("KOBO_API_TOKEN", "TOKEN_PAR_DEFAUT")
 # ==============================
 # TEMPLATES
 # ==============================
@@ -82,6 +83,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -119,14 +121,20 @@ AUTH_PASSWORD_VALIDATORS = [
 # ==============================
 # INTERNATIONALIZATION
 # ==============================
-LANGUAGE_CODE = 'fr-fr'
 
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-USE_TZ = True
 
+LANGUAGE_CODE = 'fr'
 
+LANGUAGES = [
+    ('fr', 'Français'),
+    ('ar', 'العربية'),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 # ==============================
 # STATIC FILES
 # ==============================

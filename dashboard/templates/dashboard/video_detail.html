@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 
+{% load i18n %}
+
 {% block content %}
 
-<a href="{% url 'blog' %}" class="back-link">← Retour aux articles</a>
+<a href="{% url 'blog' %}" class="back-link">
+    ← {% trans "Back to articles" %}
+</a>
 
 <div class="post-detail">
     <h1 class="post-title">{{ post.title }}</h1>
@@ -15,12 +19,14 @@
                     allowfullscreen>
             </iframe>
         </div>
+
     {% elif post.video_url %}
         <p class="video-link">
             <a href="{{ post.video_url }}" target="_blank" rel="noopener noreferrer">
-                Voir la vidéo
+                {% trans "Watch video" %}
             </a>
         </p>
+
     {% elif post.image %}
         <div class="image-wrapper">
             <img src="{{ post.image.url }}" alt="{{ post.title }}">
@@ -30,27 +36,26 @@
     <div class="content">
         {{ post.content|safe }}
     </div>
-  <!-- 4. ACTIONS (Modifier / Supprimer) -->
-            {% if request.user.is_authenticated and request.user == post.author %}
-    <!-- Boutons d'action -->
-<div class="actions">
-    <!-- Bouton pour modifier tout l'article -->
-    <a href="{% url 'edit_post' post.id %}" class="btn btn-warning">
-        ✏️ Modifier l'article
-    </a>
 
-    <!-- Bouton pour modifier uniquement la vidéo -->
-    <a href="{% url 'edit_post' post.id %}?focus=video" class="btn btn-info">
-        🎬 Modifier la vidéo
-    </a>
+    <!-- ACTIONS -->
+    {% if request.user.is_authenticated and request.user == post.author %}
+    <div class="actions">
 
-    <!-- Bouton pour supprimer -->
-    <a href="{% url 'delete_post' post.id %}" 
-       class="btn btn-danger"
-       onclick="return confirm('Voulez-vous vraiment supprimer cet article ?');">
-        🗑️ Supprimer
-    </a>
-</div>
+        <a href="{% url 'edit_post' post.id %}" class="btn btn-warning">
+            ✏️ {% trans "Edit article" %}
+        </a>
+
+        <a href="{% url 'edit_post' post.id %}?focus=video" class="btn btn-info">
+            🎬 {% trans "Edit video" %}
+        </a>
+
+        <a href="{% url 'delete_post' post.id %}"
+           class="btn btn-danger"
+           onclick="return confirm('{% trans "Do you really want to delete this article?" %}');">
+            🗑️ {% trans "Delete" %}
+        </a>
+
+    </div>
     {% endif %}
 </div>
 

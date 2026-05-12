@@ -1,432 +1,369 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription - Edu Dashboard</title>
-    
-    <!-- Polices & Icônes -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        /* =========================
-           VARIABLES
-        ========================= */
-        :root {
-            --primary: #006233;
-            --primary-dark: #004d26;
-            --bg-soft: #f8fafc;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --danger: #ef4444;
-            --focus-ring: rgba(0, 98, 51, 0.15);
-            --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        }
+{% extends "base.html" %}
+{% load i18n %}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 20px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
+{% block title %}{% trans "Inscription - Edu Dashboard" %}{% endblock %}
 
-        /* =========================
-           CARTE
-        ========================= */
-        .register-container {
-            width: 100%;
-            max-width: 550px; 
-        }
+{% block content %}
+<style>
+    /* =========================
+       VARIABLES
+    ========================= */
+    :root {
+        --primary: #006233;
+        --primary-dark: #004d26;
+        --bg-soft: #f8fafc;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --danger: #ef4444;
+        --focus-ring: rgba(0, 98, 51, 0.15);
+        --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
 
-        .register-card {
-            background: white;
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: var(--shadow-card);
-            width: 100%;
-            text-align: center;
-            border-top: 6px solid var(--primary);
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+    /* On cible seulement la page d'inscription */
+    body {
+      font-family: 'Inter', sans-serif;
+      /* Fond avec motif subtil pour plus de profondeur */
+      background-color: #f1f5f9;
+      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    main.container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        width: 100%;
+        padding: 20px;
+    }
 
-        .register-header {
-            margin-bottom: 30px;
-        }
+    html[dir="rtl"] body {
+        font-family: 'Cairo', 'Inter', sans-serif;
+    }
 
-        .register-icon {
-            width: 70px; height: 70px;
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            color: var(--primary);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 20px;
-            box-shadow: 0 4px 12px rgba(0, 98, 51, 0.15);
-        }
+    .register-container { width: 100%; max-width: 550px; }
 
-        .register-header h2 {
-            margin: 0 0 8px; font-size: 1.75rem; color: var(--text-main); font-weight: 700;
-        }
-        .register-header p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
+    .register-card {
+        background: white; padding: 40px; border-radius: 24px;
+        box-shadow: var(--shadow-card); width: 100%; text-align: center;
+        border-top: 6px solid var(--primary);
+        animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-        /* =========================
-           GRILLE & FORMULAIRE
-        ========================= */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-        .form-group {
-            margin-bottom: 15px; 
-            text-align: left;
-            /* Pour que les items dans la grille s'étirent en hauteur si besoin */
-            display: flex;
-            flex-direction: column;
-        }
+    .register-header { margin-bottom: 30px; }
 
-        .form-group label {
-            display: block; margin-bottom: 8px;
-            font-weight: 600; color: var(--text-main); font-size: 0.9rem;
-        }
+    .register-icon {
+        width: 70px; height: 70px;
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: var(--primary); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem; margin: 0 auto 20px;
+        box-shadow: 0 4px 12px rgba(0, 98, 51, 0.15);
+    }
 
-        /* Inputs */
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: flex-start; /* Important pour aligner textarea et input */
-            flex-grow: 1; /* Prend toute la place disponible dans la cellule */
-        }
-        
-        .input-wrapper i.left-icon {
-            position: absolute; left: 16px;
-            color: #94a3b8; font-size: 1.1rem; z-index: 2;
-            transition: color 0.3s;
-            /* On place l'icône en haut pour le textarea */
-            top: 12px; 
-        }
+    .register-header h2 { margin: 0 0 8px; font-size: 1.75rem; color: var(--text-main); font-weight: 700; }
+    .register-header p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
 
-        /* Cas spécial pour les inputs text standard (centrer verticalement si petite hauteur) */
-        .input-wrapper:not(:has(textarea)) i.left-icon {
-            top: 50%;
-            transform: translateY(-50%);
-        }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-        .form-input, select.form-input, textarea.form-input {
-            width: 100%;
-            padding: 12px 16px 12px 48px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-family: 'Inter', sans-serif; font-size: 0.95rem;
-            color: var(--text-main); background: var(--bg-soft);
-            transition: all 0.3s; outline: none;
-            appearance: none;
-            cursor: pointer;
-        }
+    .form-group {
+        margin-bottom: 15px; text-align: left;
+        display: flex; flex-direction: column;
+    }
 
-        /* Adjust padding for textarea specifically */
-        textarea.form-input {
-            min-height: 46px; /* Même hauteur visuelle qu'un input au repos */
-            resize: none;
-        }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
 
-        .form-input:focus, select.form-input:focus, textarea.form-input:focus {
-            border-color: var(--primary); background: white;
-            box-shadow: 0 0 0 4px var(--focus-ring);
-        }
-        .form-input:focus ~ i.left-icon { color: var(--primary); }
+    .input-wrapper { position: relative; display: flex; align-items: flex-start; flex-grow: 1; }
 
-        .select-wrapper::after {
-            content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
-            position: absolute; right: 16px; color: #94a3b8; pointer-events: none;
-        }
+    .input-wrapper i.left-icon {
+        position: absolute; left: 16px; color: #94a3b8; font-size: 1.1rem; z-index: 2;
+        transition: color 0.3s; top: 12px;
+    }
 
-        /* Toggle Password */
-        .toggle-password {
-            position: absolute; right: 16px; background: none; border: none;
-            cursor: pointer; color: #94a3b8; font-size: 1.1rem; padding: 4px; z-index: 3;
-            top: 50%; transform: translateY(-50%);
-        }
+    .input-wrapper:not(:has(textarea)) i.left-icon { top: 50%; transform: translateY(-50%); }
 
-        /* Force Mot de Passe */
-        .strength-meter {
-            height: 6px; background: #e2e8f0; border-radius: 3px;
-            margin-top: 8px; overflow: hidden; display: flex;
-        }
-        .strength-bar {
-            height: 100%; width: 0%; background: var(--danger);
-            transition: width 0.4s ease, background-color 0.4s ease;
-        }
+    .form-input, select.form-input, textarea.form-input {
+        width: 100%; padding: 12px 16px 12px 48px;
+        border: 2px solid var(--border); border-radius: 12px;
+        font-family: 'Inter', 'Cairo', sans-serif; font-size: 0.95rem;
+        color: var(--text-main); background: var(--bg-soft);
+        transition: all 0.3s; outline: none; appearance: none; cursor: pointer;
+    }
 
-        /* =========================
-           UPLOAD PHOTO
-        ========================= */
-        .photo-upload-container {
-            display: flex; flex-direction: column; align-items: center;
-            margin-bottom: 25px;
-        }
-        .photo-preview {
-            width: 90px; height: 90px; border-radius: 50%;
-            background-color: #e2e8f0;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%2394a3b8" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>');
-            background-size: cover; background-position: center;
-            margin: 0 auto 15px; border: 4px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit: cover;
-        }
-        .photo-upload-label {
-            cursor: pointer; color: var(--primary); font-weight: 600; font-size: 0.9rem;
-        }
-        #profile_image { display: none; }
+    textarea.form-input { min-height: 46px; resize: none; }
 
-        /* =========================
-           BOUTON & ERREURS
-        ========================= */
-        .btn-register {
-            width: 100%; padding: 15px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white; border: none; border-radius: 12px;
-            font-size: 1rem; font-weight: 600; cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 98, 51, 0.2);
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .btn-register:hover { transform: translateY(-2px); box-shadow: 0 10px 15px rgba(0, 98, 51, 0.3); }
-        
-        .error-box {
-            background-color: #fef2f2; color: #991b1b;
-            padding: 14px; border-radius: 10px; margin-bottom: 25px;
-            font-size: 0.9rem; border: 1px solid #fecaca;
-            display: flex; align-items: flex-start; gap: 12px; text-align: left;
-        }
+    .form-input:focus, select.form-input:focus, textarea.form-input:focus {
+        border-color: var(--primary); background: white; box-shadow: 0 0 0 4px var(--focus-ring);
+    }
 
-        .login-link { margin-top: 25px; font-size: 0.95rem; color: var(--text-muted); }
-        .login-link a { color: var(--primary); text-decoration: none; font-weight: 700; }
+    .form-input:focus ~ i.left-icon { color: var(--primary); }
 
-        /* Spinner */
-        .spinner {
-            width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%; border-top-color: white;
-            animation: spin 0.8s linear infinite; display: none;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+    .select-wrapper::after {
+        content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+        position: absolute; right: 16px; color: #94a3b8; pointer-events: none;
+    }
 
-        /* Mobile : tout empiler */
-        @media (max-width: 550px) {
-            .form-grid { grid-template-columns: 1fr; gap: 0; }
-            .register-card { padding: 30px 20px; border-radius: 16px; }
-            body { background-image: none; background-color: #f8fafc; }
-        }
-    </style>
-</head>
-<body>
+    .toggle-password {
+        position: absolute; right: 16px; background: none; border: none;
+        cursor: pointer; color: #94a3b8; font-size: 1.1rem; padding: 4px; z-index: 3;
+        top: 50%; transform: translateY(-50%);
+    }
 
-    <div class="register-container">
-        <div class="register-card">
-            
-            <!-- HEADER -->
-            <div class="register-header">
-                <div class="register-icon"><i class="fa-solid fa-user-plus"></i></div>
-                <h2>Créer un compte</h2>
-                <p>Rejoignez l'Edu Dashboard</p>
-            </div>
+    .strength-meter { height: 6px; background: #e2e8f0; border-radius: 3px; margin-top: 8px; overflow: hidden; display: flex; }
+    .strength-bar { height: 100%; width: 0%; background: var(--danger); transition: width 0.4s ease, background-color 0.4s ease; }
 
-            <!-- ERREURS -->
-            {% if messages %}
-                {% for message in messages %}
-                <div class="error-box">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <span>{{ message }}</span>
-                </div>
-                {% endfor %}
-            {% endif %}
+    .photo-upload-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
 
-            <!-- FORMULAIRE -->
-            <form method="POST" action="{% url 'register' %}" id="registerForm" enctype="multipart/form-data">
-                {% csrf_token %}
+    .photo-preview {
+        width: 90px; height: 90px; border-radius: 50%; background-color: #e2e8f0;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%2394a3b8" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>');
+        background-size: cover; background-position: center; margin: 0 auto 15px;
+        border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit: cover;
+    }
 
-                <!-- PHOTO -->
-                <div class="photo-upload-container">
-                    <img id="preview-img" class="photo-preview" alt="Aperçu">
-                    <label for="profile_image" class="photo-upload-label">
-                        <i class="fa-solid fa-camera"></i> Choisir une photo
-                    </label>
-                    <input type="file" id="profile_image" name="profile_image" accept="image/*">
-                </div>
+    .photo-upload-label { cursor: pointer; color: var(--primary); font-weight: 600; font-size: 0.9rem; }
+    #profile_image { display: none; }
 
-                <!-- GRILLE 1 : NOM & PRENOM -->
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="first_name">Nom</label>
-                        <div class="input-wrapper">
-                            <input type="text" id="first_name" name="first_name" class="form-input" placeholder="Votre nom" required>
-                            <i class="fa-solid fa-user left-icon"></i>
-                        </div>
-                    </div>
+    .btn-register {
+        width: 100%; padding: 15px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600;
+        cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0, 98, 51, 0.2);
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
 
-                    <div class="form-group">
-                        <label for="last_name">Prénom</label>
-                        <div class="input-wrapper">
-                            <input type="text" id="last_name" name="last_name" class="form-input" placeholder="Votre prénom" required>
-                            <i class="fa-solid fa-user-tag left-icon"></i>
-                        </div>
-                    </div>
-                </div>
+    .btn-register:hover { transform: translateY(-2px); box-shadow: 0 10px 15px rgba(0, 98, 51, 0.3); }
 
-                <!-- GRILLE 2 : EMAIL & RÔLE -->
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="email">Adresse Email</label>
-                        <div class="input-wrapper">
-                            <input type="email" id="email" name="email" class="form-input" placeholder="nom@exemple.com" required>
-                            <i class="fa-solid fa-envelope left-icon"></i>
-                        </div>
-                    </div>
+    .error-box {
+        background-color: #fef2f2; color: #991b1b; padding: 14px; border-radius: 10px;
+        margin-bottom: 25px; font-size: 0.9rem; border: 1px solid #fecaca;
+        display: flex; align-items: flex-start; gap: 12px; text-align: left;
+    }
 
-                    <div class="form-group">
-                        <label for="role">Rôle</label>
-                        <div class="input-wrapper select-wrapper">
-                            <select id="role" name="role" class="form-input">
-                                <option value="Administrateur">Administrateur</option>
-                                <option value="Inspecteur IEF">Inspecteur IEF</option>
-                                <option value="Directeur">Directeur</option>
-                                <option value="Enseignant" selected>Enseignant</option>
-                            </select>
-                            <i class="fa-solid fa-briefcase left-icon"></i>
-                        </div>
-                    </div>
-                </div>
+    .login-link { margin-top: 25px; font-size: 0.95rem; color: var(--text-muted); }
+    .login-link a { color: var(--primary); text-decoration: none; font-weight: 700; }
 
-                <!-- GRILLE 3 : TÉLÉPHONE & ADRESSE (Modification ICI) -->
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="phone">Téléphone</label>
-                        <div class="input-wrapper">
-                            <input type="tel" id="phone" name="phone" class="form-input" placeholder="+222 ...">
-                            <i class="fa-solid fa-phone left-icon"></i>
-                        </div>
-                    </div>
+    .spinner {
+        width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; display: none;
+    }
 
-                    <div class="form-group">
-                        <label for="address">Adresse</label>
-                        <div class="input-wrapper">
-                            <textarea id="address" name="address" class="form-input" placeholder="Votre adresse..." style="resize: none;"></textarea>
-                            <i class="fa-solid fa-location-dot left-icon"></i>
-                        </div>
-                    </div>
-                </div>
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-                <!-- MOT DE PASSE (Pleine largeur) -->
-                <div class="form-group">
-                    <label for="password">Mot de passe</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="password" name="password" class="form-input" placeholder="8 caractères min." required>
-                        <i class="fa-solid fa-lock left-icon"></i>
-                        <button type="button" class="toggle-password" tabindex="-1"><i class="fa-regular fa-eye"></i></button>
-                    </div>
-                    <div class="strength-meter">
-                        <div class="strength-bar" id="strengthBar"></div>
-                    </div>
-                </div>
+    /* =========================
+       RESPONSIVE & RTL (ARABE)
+    ========================= */
+    @media (max-width: 550px) {
+        .form-grid { grid-template-columns: 1fr; gap: 0; }
+        .register-card { padding: 30px 20px; border-radius: 16px; }
+        body { background-image: none !important; background-color: #f8fafc !important; }
+    }
 
-                <!-- BOUTON -->
-                <button type="submit" class="btn-register" id="submitBtn">
-                    <span class="btn-text">S'inscrire maintenant</span>
-                    <i class="fa-solid fa-user-plus icon-btn"></i>
-                    <div class="spinner"></div>
-                </button>
-            </form>
+    /* Adaptations Arabe (RTL) */
+    html[dir="rtl"] .form-group { text-align: right; }
+    html[dir="rtl"] .input-wrapper i.left-icon { left: auto; right: 16px; }
+    html[dir="rtl"] .form-input,
+    html[dir="rtl"] select.form-input,
+    html[dir="rtl"] textarea.form-input { padding: 12px 48px 12px 16px; }
+    html[dir="rtl"] .toggle-password { right: auto; left: 16px; }
+    html[dir="rtl"] .select-wrapper::after { right: auto; left: 16px; }
+    html[dir="rtl"] .error-box { text-align: right; }
+</style>
 
-            <div class="login-link">
-                Déjà inscrit ? <a href="{% url 'login' %}">Se connecter</a>
-            </div>
+<div class="register-container">
+    <div class="register-card">
 
+        <!-- HEADER -->
+        <div class="register-header">
+            <div class="register-icon"><i class="fa-solid fa-user-plus"></i></div>
+            <h2>{% trans "Créer un compte" %}</h2>
+            <p>{% trans "Rejoignez l'Edu Dashboard" %}</p>
         </div>
+
+        <!-- ERREURS -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="error-box">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- FORMULAIRE -->
+        <form method="POST" action="{% url 'register' %}" id="registerForm" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- PHOTO -->
+            <div class="photo-upload-container">
+                <img id="preview-img" class="photo-preview" alt="{% trans 'Aperçu' %}">
+                <label for="profile_image" class="photo-upload-label">
+                    <i class="fa-solid fa-camera"></i> {% trans "Choisir une photo" %}
+                </label>
+                <input type="file" id="profile_image" name="profile_image" accept="image/*">
+            </div>
+
+            <!-- GRILLE 1 : NOM & PRENOM -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="first_name">{% trans "Nom" %}</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="first_name" name="first_name" class="form-input" placeholder="{% trans 'Votre nom' %}" required>
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">{% trans "Prénom" %}</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="last_name" name="last_name" class="form-input" placeholder="{% trans 'Votre prénom' %}" required>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRILLE 2 : EMAIL & RÔLE -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="email">{% trans "Adresse Email" %}</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="email" name="email" class="form-input" placeholder="{% trans 'nom@exemple.com' %}" required>
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">{% trans "Rôle" %}</label>
+                    <div class="input-wrapper select-wrapper">
+                        <select id="role" name="role" class="form-input">
+
+                            <option value="Inspecteur IEF">{% trans "Inspecteur IEF" %}</option>
+                            <option value="Directeur">{% trans "Directeur" %}</option>
+                            <option value="Enseignant" selected>{% trans "Enseignant" %}</option>
+                        </select>
+                        <i class="fa-solid fa-briefcase left-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRILLE 3 : TÉLÉPHONE & ADRESSE -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="phone">{% trans "Téléphone" %}</label>
+                    <div class="input-wrapper">
+                        <input type="tel" id="phone" name="phone" class="form-input" placeholder="+222 ...">
+                        <i class="fa-solid fa-phone left-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">{% trans "Adresse" %}</label>
+                    <div class="input-wrapper">
+                        <textarea id="address" name="address" class="form-input" placeholder="{% trans 'Votre adresse...' %}" style="resize: none;"></textarea>
+                        <i class="fa-solid fa-location-dot left-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOT DE PASSE -->
+            <div class="form-group">
+                <label for="password">{% trans "Mot de passe" %}</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" class="form-input" placeholder="{% trans '8 caractères min.' %}" required>
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <button type="button" class="toggle-password" tabindex="-1"><i class="fa-regular fa-eye"></i></button>
+                </div>
+                <div class="strength-meter">
+                    <div class="strength-bar" id="strengthBar"></div>
+                </div>
+            </div>
+
+            <!-- BOUTON -->
+            <button type="submit" class="btn-register" id="submitBtn">
+                <span class="btn-text">{% trans "S'inscrire maintenant" %}</span>
+                <i class="fa-solid fa-user-plus icon-btn"></i>
+                <div class="spinner"></div>
+            </button>
+        </form>
+
+        <div class="login-link">
+            {% trans "Déjà inscrit ?" %} <a href="{% url 'login' %}">{% trans "Se connecter" %}</a>
+        </div>
+
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const passwordInput = document.getElementById('password');
-            const strengthBar = document.getElementById('strengthBar');
-            const toggleBtn = document.querySelector('.toggle-password');
-            const fileInput = document.getElementById('profile_image');
-            const previewImg = document.getElementById('preview-img');
-            const form = document.getElementById('registerForm');
-            const submitBtn = document.getElementById('submitBtn');
-            const btnText = document.querySelector('.btn-text');
-            const iconBtn = document.querySelector('.icon-btn');
-            const spinner = document.querySelector('.spinner');
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+        const toggleBtn = document.querySelector('.toggle-password');
+        const fileInput = document.getElementById('profile_image');
+        const previewImg = document.getElementById('preview-img');
+        const form = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.querySelector('.btn-text');
+        const iconBtn = document.querySelector('.icon-btn');
+        const spinner = document.querySelector('.spinner');
 
-            // Toggle Password
-            toggleBtn.addEventListener('click', () => {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-                const icon = toggleBtn.querySelector('i');
-                if(type === 'text') {
-                    icon.classList.replace('fa-eye', 'fa-eye-slash');
-                    icon.style.color = 'var(--primary)';
-                } else {
-                    icon.classList.replace('fa-eye-slash', 'fa-eye');
-                    icon.style.color = '';
-                }
-            });
-
-            // Password Strength
-            passwordInput.addEventListener('input', () => {
-                const val = passwordInput.value;
-                let strength = 0;
-                if(val.length >= 8) strength += 1;
-                if(val.match(/[a-z]+/)) strength += 1;
-                if(val.match(/[A-Z]+/)) strength += 1;
-                if(val.match(/[0-9]+/)) strength += 1;
-                if(val.match(/[$@#&!]+/)) strength += 1;
-
-                let color = '#ef4444', width = '0%';
-                if(strength > 0) width = '20%';
-                if(strength > 1) { width = '40%'; color = '#f59e0b'; }
-                if(strength > 2) { width = '60%'; color = '#f59e0b'; }
-                if(strength > 3) { width = '80%'; color = '#10b981'; }
-                if(strength > 4) { width = '100%'; color = '#059669'; }
-                
-                strengthBar.style.width = width;
-                strengthBar.style.backgroundColor = color;
-            });
-
-            // Image Preview
-            fileInput.addEventListener('change', function() {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) { previewImg.src = e.target.result; }
-                    reader.readAsDataURL(file);
-                } else {
-                    previewImg.src = "";
-                }
-            });
-
-            // Submit
-            form.addEventListener('submit', (e) => {
-                if (!form.checkValidity()) return;
-                submitBtn.disabled = true;
-                btnText.style.display = 'none';
-                iconBtn.style.display = 'none';
-                spinner.style.display = 'block';
-                submitBtn.style.cursor = 'wait';
-            });
+        toggleBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            const icon = toggleBtn.querySelector('i');
+            if(type === 'text') {
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+                icon.style.color = 'var(--primary)';
+            } else {
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+                icon.style.color = '';
+            }
         });
-    </script>
-</body>
-</html>
+
+        passwordInput.addEventListener('input', () => {
+            const val = passwordInput.value;
+            let strength = 0;
+            if(val.length >= 8) strength += 1;
+            if(val.match(/[a-z]+/)) strength += 1;
+            if(val.match(/[A-Z]+/)) strength += 1;
+            if(val.match(/[0-9]+/)) strength += 1;
+            if(val.match(/[$@#&!]+/)) strength += 1;
+
+            let color = '#ef4444', width = '0%';
+            if(strength > 0) width = '20%';
+            if(strength > 1) { width = '40%'; color = '#f59e0b'; }
+            if(strength > 2) { width = '60%'; color = '#f59e0b'; }
+            if(strength > 3) { width = '80%'; color = '#10b981'; }
+            if(strength > 4) { width = '100%'; color = '#059669'; }
+
+            strengthBar.style.width = width;
+            strengthBar.style.backgroundColor = color;
+        });
+
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) { previewImg.src = e.target.result; }
+                reader.readAsDataURL(file);
+            } else {
+                previewImg.src = "";
+            }
+        });
+
+        form.addEventListener('submit', (e) => {
+            if (!form.checkValidity()) return;
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            iconBtn.style.display = 'none';
+            spinner.style.display = 'block';
+            submitBtn.style.cursor = 'wait';
+        });
+    });
+</script>
+{% endblock %}

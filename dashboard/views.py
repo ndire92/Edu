@@ -2,7 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.db.models.functions import TruncMonth, TruncDay
+from collections import defaultdict
+from dateutil.parser import parse
+from django.db.models import Sum, Count
 
 from django.db.models import Q
 from django.template.loader import render_to_string
@@ -10,24 +14,102 @@ from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
 from django.core.mail import send_mail
 import requests
-import pandas as pd
 from django.core.mail import send_mail
 from django.conf import settings
-import plotly.express as px
-from .models import CustomUser, Correction, BlogPost
+from .models import AbsenceMensuelleEleve, AbsenceMensuelleEnseignant, AbsenceQuotidienneEleve, AbsenceQuotidienneEnseignant, CustomUser, Correction, BlogPost, Ecole, Eleve, Enseignant
 from .forms import CustomUserChangeForm, BlogPostForm
+
+
+
+def home_view(request):
+    return render(request, "dashboard/home.html")
+
+
+def api_home_data(request):
+    """API Power BI : Agrège les données de la base locale"""
+    data = {}
+
+    # Élèves
+    data['eleves_sexe'] = list(Eleve.objects.values('sexe').annotate(total=Count('id')))
+    data['eleves_classe'] = list(
+        Eleve.objects.values('classe')
+        .annotate(total=Count('id'))
+        .order_by('-total')[:10]
+    )
+
+    # Absences quotidiennes élèves
+    abs_q = list(
+        AbsenceQuotidienneEleve.objects
+        .annotate(day=TruncDay('date_absence'))
+        .values('day')
+        .annotate(total=Sum('total_absences'))
+        .order_by('day')
+    )
+    for item in abs_q:
+        item['day'] = item['day'].strftime("%Y-%m-%d")
+    data['abs_eleves_q_evol'] = abs_q
+#Absences Mensuelles Élèves
+    raw_absences = AbsenceQuotidienneEleve.objects.values('date_absence', 'total_absences')
+
+    mois_groupes = defaultdict(int)
+
+    for item in raw_absences:
+        if item['date_absence']:
+            d = parse(str(item['date_absence']))
+            cle_mois = d.strftime("%Y-%m")  # ex: "2025-11"
+            mois_groupes[cle_mois] += item['total_absences'] or 0
+
+    data['abs_eleves_m_evol'] = [
+        {"month": mois, "total": total}
+        for mois, total in sorted(mois_groupes.items())
+    ]
+    # Enseignants
+    data['ens_sexe'] = list(Enseignant.objects.values('sexe').annotate(total=Count('id')))
+    data['ens_langue'] = list(Enseignant.objects.values('langue_travail').annotate(total=Count('id')))
+    data['abs_ens_q_pie'] = {
+        "Justifiées": AbsenceQuotidienneEnseignant.objects.aggregate(total=Sum('abs_justifiees'))['total'] or 0,
+        "Non Justifiées": AbsenceQuotidienneEnseignant.objects.aggregate(total=Sum('abs_non_justifiees'))['total'] or 0
+    }
+
+    abs_ens_q = list(
+        AbsenceQuotidienneEnseignant.objects
+        .annotate(day=TruncDay('date_absence'))
+        .values('day')
+        .annotate(just=Sum('abs_justifiees'), nj=Sum('abs_non_justifiees'))
+        .order_by('day')
+    )
+    for item in abs_ens_q:
+        item['day'] = item['day'].strftime("%Y-%m-%d")
+    data['abs_ens_q_evol'] = abs_ens_q
+
+    # Absences mensuelles enseignants (regroupement Python)
+    raw_abs_ens = AbsenceMensuelleEnseignant.objects.values('mois', 'abs_justifiees', 'abs_non_justifiees')
+    mois_groupes_ens = defaultdict(lambda: {"just": 0, "nj": 0})
+    for item in raw_abs_ens:
+        if item['mois']:
+            d = parse(str(item['mois']))
+            cle_mois = d.strftime("%Y-%m")
+            mois_groupes_ens[cle_mois]["just"] += item['abs_justifiees'] or 0
+            mois_groupes_ens[cle_mois]["nj"] += item['abs_non_justifiees'] or 0
+    data['abs_ens_m_evol'] = [
+        {"month": mois, "just": total["just"], "nj": total["nj"]}
+        for mois, total in sorted(mois_groupes_ens.items())
+    ]
+
+    # Retour JSON
+    return JsonResponse({
+        "ecoles": list(Ecole.objects.values_list('nom_ecole', flat=True).distinct()),
+        "mois": [d.strftime('%Y-%m') for d in AbsenceQuotidienneEleve.objects.dates('date_absence', 'month').order_by('-date_absence')],
+        **data
+        })
 
 # ==================================================
 # CONFIGURATION GLOBALE
 # ==================================================
-API_TOKEN = "f585e3b36fa1739f8b0a27ba559f0992d2bf1d6f"
-FORMS_CONFIG = [
-    {'uid': 'aJtfPktL7aZKg2t7qZdp7v', 'title': 'Formulaire Principal'},
-]
-
 # ==================================================
 # FONCTIONS D'AUTHENTIFICATION
 # ==================================================
+
 
 def register_view(request):
     if request.method == "POST":
@@ -248,6 +330,23 @@ def admin_edit_user(request, user_id):
         "form": form,
         "user": user_to_edit
     })
+@login_required
+def admin_update_role(request, user_id):
+    # Vérifie si l'utilisateur n'est pas superuser ET n'a pas le rôle Administrateur
+    if not (request.user.is_superuser or request.user.role == "Administrateur"):
+        messages.error(request, "Accès refusé.")
+        return redirect('/dashboard/')
+
+    if request.method == "POST":
+        user = get_object_or_404(User, id=user_id)
+        new_role = request.POST.get("role")
+
+        if new_role:
+            user.role = new_role
+            user.save()
+            messages.success(request, "Rôle mis à jour.")
+
+    return redirect('/admin-panel/')
 
 # ==================================================
 # FONCTION COMMUNE (Moteur de données)
@@ -255,338 +354,339 @@ def admin_edit_user(request, user_id):
 # DASHBOARD KOBO
 # ==========================
 
-def _get_dashboard_data(request, forms_config=FORMS_CONFIG):
-    """
-    Fonction principale pour récupérer et traiter les données des formulaires.
-    Intègre les corrections locales pour que les graphiques et stats soient à jour.
-    """
-    search_query = request.GET.get('q', '')
-    page_number = request.GET.get('page', 1)
-    filter_month = request.GET.get('filter_month', '')
-    filter_teacher = request.GET.get('filter_teacher', '')
-    filter_type = request.GET.get('filter_type', '')
-
-    # Colonnes techniques à supprimer
-    colonnes_a_supprimer = [
-        '_validation_status', 'meta/instanceID', 'meta/rootUuid', '_xform_id_string',
-        '_bamboo_dataset_id', '_tags', '__version__', '_status',
-        '_submitted_by', '_geolocation', 'formhub/uuid'
-    ]
-
-    all_tables_data = []
-
-    for form in forms_config:
-        form_uid = form['uid']
-        form_title = form.get('title', 'Titre Par Défaut')
-
-        # --- 1. Récupération API Kobo ---
-        url = f"https://kf.kobotoolbox.org/api/v2/assets/{form_uid}/data/"
-        headers = {"Authorization": f"Token {API_TOKEN}"}
-        all_records = []
-
-        while url and len(all_records) < 1000:
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                data = response.json()
-                all_records.extend(data['results'])
-                url = data.get('next')
-            else:
-                break
-
-        df = pd.DataFrame(all_records)
-
-        table_context = {
-            'uid': form_uid,
-            'table_html_id': 'card-' + form_uid,
-            'title': form_title,
-            'headers': [],
-            'page_obj': None,
-            'chart_bar': None,
-            'chart_line': None,
-            'chart_pie': None,
-            'total': 0,
-            'stats': {'total': 0, 'present': 0, 'absent': 0, 'late': 0},
-            'available_months': [],
-            'available_teachers': []
-        }
-
-        if not df.empty:
-            # --- 2. Renommage ID ---
-            if '_id' in df.columns: df.rename(columns={'_id': 'id'}, inplace=True)
-            if '_uuid' in df.columns: df.rename(columns={'_uuid': 'uuid'}, inplace=True)
-
-            # --- 3. Gestion des images ---
-            if '_attachments' in df.columns:
-                for index, row in df.iterrows():
-                    attachments = row['_attachments']
-                    if isinstance(attachments, list):
-                        for att in attachments:
-                            question_name = att.get('question_xpath')
-                            url_img = att.get('download_medium_url')
-                            if url_img: url_img += f"?token={API_TOKEN}"
-                            if question_name and url_img and question_name in df.columns:
-                                df.at[index, question_name] = url_img
-                df.drop(columns=['_attachments'], inplace=True)
-
-            # --- 4. Suppression colonnes techniques ---
-            df.drop(columns=colonnes_a_supprimer, inplace=True, errors='ignore')
-
-            # --- 5. Colonnes pertinentes ---
-            cols_pertinentes = [col for col in df.columns if not (df[col].astype(str).str.startswith('http', na=False).any())]
-
-            # Colonne date
-            col_date = None
-            for col in df.columns:
-                if 'date' in col.lower() or 'start' in col.lower():
-                    col_date = col; break
-            if not col_date and '_submission_time' in df.columns:
-                col_date = '_submission_time'
-
-            if col_date:
-                df[col_date] = pd.to_datetime(df[col_date], errors='coerce')
-                df.sort_values(col_date, inplace=True)
-                df['MonthStr'] = df[col_date].dt.strftime('%Y-%m')
-                table_context['available_months'] = sorted(df['MonthStr'].unique())
-
-            # Colonne nom
-            col_nom = None
-            for col in cols_pertinentes:
-                if 'nom' in col.lower() or 'name' in col.lower():
-                    col_nom = col; break
-            if not col_nom: col_nom = cols_pertinentes[0] if cols_pertinentes else None
-
-            # Colonne observation/statut
-            col_obs = None
-            for col in df.columns:
-                if 'obs' in col.lower() or 'statut' in col.lower() or 'presence' in col.lower():
-                    col_obs = col; break
-
-            # Colonne enseignant
-            col_teacher = None
-            for col in cols_pertinentes:
-                if 'ens' in col.lower() or 'prof' in col.lower() or 'teacher' in col.lower() or 'classe' in col.lower():
-                    col_teacher = col; break
-            if col_teacher:
-                table_context['available_teachers'] = sorted(df[col_teacher].dropna().unique())
-
-            # --- 6. Application des filtres ---
-            df_filtered = df.copy()
-            if filter_month and col_date:
-                df_filtered = df_filtered[df_filtered['MonthStr'] == filter_month]
-            if filter_teacher and col_teacher:
-                df_filtered = df_filtered[df_filtered[col_teacher] == filter_teacher]
-            if filter_type and col_obs:
-                df_filtered = df_filtered[df_filtered[col_obs].astype(str).str.upper() == filter_type.upper()]
-
-            # --- 6b. Appliquer corrections locales avant stats et graphiques ---
-            corrs = Correction.objects.all()
-            cor_map = {}
-            for c in corrs:
-                if c.kobo_id not in cor_map:
-                    cor_map[c.kobo_id] = {}
-                cor_map[c.kobo_id][c.column_name] = c.new_value
-
-            for idx, row in df_filtered.iterrows():
-                r_uuid = row.get('uuid')
-                if r_uuid and r_uuid in cor_map:
-                    for col, new_val in cor_map[r_uuid].items():
-                        df_filtered.at[idx, col] = new_val
-
-            # --- 7. Graphiques ---
-            # Barre
-            if col_nom and not df_filtered.empty:
-                count_abs = df_filtered[col_nom].value_counts().reset_index()
-                count_abs.columns = [col_nom, 'Nb_Absences']
-                count_abs['Nb_Absences'] = pd.to_numeric(count_abs['Nb_Absences'], errors='coerce').fillna(0)
-                if not count_abs.empty:
-                    fig_bar = px.bar(count_abs, x='Nb_Absences', y=col_nom, orientation='h',
-                                       title=f"Top {col_nom}", text='Nb_Absences', color='Nb_Absences',
-                                       color_continuous_scale='Viridis')
-                    fig_bar.update_yaxes(autorange="reversed")
-                    table_context['chart_bar'] = fig_bar.to_html(full_html=False, include_plotlyjs=False)
-
-            # Courbe
-            if col_date and not df_filtered.empty:
-                df_line = df_filtered.dropna(subset=[col_date]).copy()
-                if not df_line.empty:
-                    df_evol = df_line.groupby(col_date).size().reset_index(name='Total')
-                    fig_line = px.line(df_evol, x=col_date, y='Total', markers=True)
-                    table_context['chart_line'] = fig_line.to_html(full_html=False, include_plotlyjs=False)
-
-            # Camembert
-            if col_obs and not df_filtered.empty:
-                df_pie = df_filtered.copy()
-
-                def normalize_status(x):
-                    v = str(x).lower()
-                    if v == 'p' or 'present' in v: return 'Présent'
-                    if v == 'a' or 'abs' in v: return 'Absent'
-                    if v == 'r' or 'retard' in v or 'late' in v: return 'Retard'
-                    return None
-
-                df_pie['Categorie'] = df_pie[col_obs].apply(normalize_status)
-                df_pie = df_pie[df_pie['Categorie'].notna()]
-
-                if not df_pie.empty:
-                    count_obs = df_pie['Categorie'].value_counts().reset_index()
-                    count_obs.columns = ['Type', 'Nombre']
-                    count_obs['Type'] = pd.Categorical(count_obs['Type'], ['Présent', 'Absent', 'Retard'])
-                    count_obs.sort_values('Type', inplace=True)
-                    color_map = {'Présent': '#2ecc71', 'Absent': '#e74c3c', 'Retard': '#f1c40f'}
-                    fig_pie = px.pie(count_obs, values='Nombre', names='Type',
-                                     title=f"Répartition : {col_obs}", hole=0.3,
-                                     color='Type', color_discrete_map=color_map)
-                    table_context['chart_pie'] = fig_pie.to_html(full_html=False, include_plotlyjs=False)
-
-            # --- 8. Recherche & Pagination ---
-            df_display = df_filtered.astype(str)
-            if search_query:
-                mask = df_display.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)
-                df_display = df_display[mask]
-
-            if not df_display.empty:
-                # Stats
-                stats = {'total': len(df_display), 'present': 0, 'absent': 0, 'late': 0}
-                if col_obs:
-                    df_str_obs = df_display[col_obs].astype(str).str.upper()
-                    stats['present'] = int(df_str_obs.str.contains('P').sum())
-                    stats['absent'] = int(df_str_obs.str.contains('A').sum())
-                    stats['late'] = int(df_str_obs.str.contains('R').sum())
-                table_context['stats'] = stats
-
-                # Préparer records pour template
-                records = df_display.to_dict('records')
-                for record in records:
-                    # Appliquer corrections aux records pour l'affichage
-                    r_uuid = record.get('uuid')
-                    if r_uuid and r_uuid in cor_map:
-                        record.update(cor_map[r_uuid])
-                    record['kobo_id'] = record.get('uuid')  # Pour template buttons
-
-                paginator = Paginator(records, 20)
-                table_context['page_obj'] = paginator.get_page(page_number)
-                table_context['headers'] = df_display.columns.tolist()
-                table_context['total'] = paginator.count
-
-        all_tables_data.append(table_context)
-
-    return {
-        'all_tables': all_tables_data,
-        'query': search_query,
-        'current_month': filter_month,
-        'current_teacher': filter_teacher,
-        'current_type': filter_type
-    }
+# ===========from django.db.models.functions import TruncMonth, TruncDay
 
 
 
-# ==========================
-# VUE PRINCIPALE DASHBOARD
-# ==========================
+def home_view(request):
+    return render(request, "dashboard/home.html")
+
+
+
+
+#==========================================================
+# SYSTÈME KOBO ACTUEL (RAPIDE, BASE DE DONNÉES)
+# =====================================================================
+from django.db.models import Sum, Count
+from dashboard.kobo_config import FORM_UIDS
+
+FORM_TITLES = {
+    "eleves_registre": "Registre Élèves",
+    "eleves_abs_q": "Absences Quotidiennes Élèves",
+    "eleves_abs_m": "Absences Mensuelles Élèves",
+    "ens_registre": "Registre Enseignants",
+    "ens_abs_q": "Absences Quotidiennes Enseignants",
+    "ens_abs_m": "Absences Mensuelles Enseignants",
+}
+
 @login_required
 def dashboard_view(request):
-    full_data = _get_dashboard_data(request, forms_config=FORMS_CONFIG)
-    global_stats = {'total_records': 0, 'total_present': 0, 'total_absences': 0, 'total_forms': 0}
+    # Calcule les vrais stats depuis la base de données
+    total_absences = AbsenceQuotidienneEleve.objects.aggregate(total=Sum("total_absences"))["total"] or 0
 
-    for table in full_data.get('all_tables', []):
-        stats = table.get('stats', {})
-        global_stats['total_records'] += stats.get('total', 0)
-        global_stats['total_present'] += stats.get('present', 0)
-        global_stats['total_absences'] += stats.get('absent', 0)
-        global_stats['total_forms'] += 1
+    # Ne montre dans le menu QUE les formulaires qui ont un UID configuré
+    forms_list = [
+        {"uid": key, "title": FORM_TITLES.get(key, key)}
+        for key, uid in FORM_UIDS.items() if uid
+    ]
 
-    context = {
-        'global_stats': global_stats,
-        'all_tables': [],  # On cache au chargement, chargement via API
-        'forms_list': FORMS_CONFIG,
-        'can_edit': request.user.is_superuser or request.user.role in ['Directeur', 'Administrateur']
+    global_stats = {
+        "total_records": Eleve.objects.count() + Enseignant.objects.count(),
+        "total_present": Eleve.objects.count(),
+        "total_absences": total_absences,
+        "total_forms": len(forms_list)
     }
 
-    return render(request, 'dashboard/dashboard_table.html', context)
+    return render(request, "dashboard/dashboard_table.html", {
+        "forms_list": forms_list,
+        "global_stats": global_stats,
+        "can_edit": request.user.is_superuser or request.user.role in ['Directeur', 'Administrateur']
+    })
 
+# --- APIs pour les tableaux interactifs ---
+import json
+# ... vos autres imports ...
 
-
-
-# ==========================
-# EDIT / DELETE KOBO
-# ==========================
+# --- APIs pour les tableaux interactifs ---
 @login_required
-def edit_record(request, kobo_id):
-    form_uid = FORMS_CONFIG[0]['uid']
-    url = f"https://kf.kobotoolbox.org/api/v2/assets/{form_uid}/data/{kobo_id}/"
-    headers = {"Authorization": f"Token {API_TOKEN}"}
+def api_eleves(request, pk=None):
+    if request.method == 'GET':
+        if pk:
+            # Récupérer UN SEUL élève (pour le formulaire d'édition)
+            try:
+                eleve = Eleve.objects.select_related('ecole').get(pk=pk)
+                data = {
+                    'id': eleve.id, 'numero_reg': eleve.numero_reg, 'nom_prenom': eleve.nom_prenom,
+                    'nni': eleve.nni, 'sexe': eleve.sexe, 'tel': eleve.tel, 'classe': eleve.classe,
+                    'observations': eleve.observations, 'enseignant': eleve.enseignant
+                }
+                return JsonResponse(data)
+            except Eleve.DoesNotExist:
+                return JsonResponse({'error': 'Non trouvé'}, status=404)
 
-    if request.method == "POST":
-        for key, value in request.POST.items():
-            if key == 'csrfmiddlewaretoken':
-                continue
-            Correction.objects.update_or_create(
-                kobo_id=kobo_id,
-                column_name=key,
-                defaults={'new_value': value}
+        # Récupérer TOUT (pour le tableau)
+        data = list(Eleve.objects.select_related('ecole').values(
+            'id', 'numero_reg', 'nom_prenom', 'nni', 'sexe', 'tel', 'classe',
+            'observations', 'enseignant', 'ecole__nom_ecole'
+        ))
+        return JsonResponse(data, safe=False)
+
+    # --- SÉCURITÉ : Seuls les admins peuvent modifier/supprimer ---
+    is_admin = request.user.is_superuser or request.user.role in ['Directeur', 'Administrateur']
+    if not is_admin:
+        return JsonResponse({'error': 'Accès interdit'}, status=403)
+
+    # --- MODIFIER (PUT) ---
+    if request.method == 'PUT' and pk:
+        try:
+            eleve = Eleve.objects.get(pk=pk)
+            data = json.loads(request.body)
+
+            eleve.numero_reg = data.get('numero_reg', eleve.numero_reg)
+            eleve.nom_prenom = data.get('nom_prenom', eleve.nom_prenom)
+            eleve.nni = data.get('nni', eleve.nni)
+            eleve.sexe = data.get('sexe', eleve.sexe)
+            eleve.tel = data.get('tel', eleve.tel)
+            eleve.classe = data.get('classe', eleve.classe)
+            eleve.observations = data.get('observations', eleve.observations)
+            eleve.enseignant = data.get('enseignant', eleve.enseignant)
+
+            # Si on change l'école (géré séparément car c'est une ForeignKey)
+            nom_ecole = data.get('ecole__nom_ecole')
+            if nom_ecole:
+                ecole, _ = Ecole.objects.get_or_create(nom_ecole=nom_ecole, defaults={"nouveau_code_ecole": "AUTO_"+nom_ecole[:5]})
+                eleve.ecole = ecole
+
+            eleve.save()
+            return JsonResponse({'success': True})
+        except Eleve.DoesNotExist:
+            return JsonResponse({'error': 'Non trouvé'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    # --- SUPPRIMER (DELETE) ---
+    if request.method == 'DELETE' and pk:
+        try:
+            eleve = Eleve.objects.get(pk=pk)
+            eleve.delete()
+            return JsonResponse({'success': True})
+        except Eleve.DoesNotExist:
+            return JsonResponse({'error': 'Non trouvé'}, status=404)
+
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+import json
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt  # Nécessaire si vous appelez l'API depuis un frontend différent (ex: React/Vue)
+from django.db import transaction
+
+from dashboard.models import Ecole, Enseignant
+
+# On crée un petit mixin pour renvoyer du JSON propre si non connecté
+def login_required_json(view_func):
+    def wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'Authentification requise'}, status=401)
+        return view_func(request, *args, **kwargs)
+    return wrapped_view
+
+@login_required_json
+@csrf_exempt # Retirez ce décorateur si vous appelez l'API depuis le même domaine (templates Django)
+def api_enseignants(request, pk=None):
+
+    # ==========================================
+    # LECTURE (GET)
+    # ==========================================
+    if request.method == 'GET':
+        if pk:
+            try:
+                ens = Enseignant.objects.select_related('ecole').get(pk=pk)
+                return JsonResponse({
+                    'id': ens.id, 'numero_reg': ens.numero_reg, 'nom_prenom': ens.nom_prenom,
+                    'sexe': ens.sexe, 'mle': ens.mle, 'langue_travail': ens.langue_travail,
+                    'ecole_id': ens.ecole.id if ens.ecole else None, # On renvoie l'ID
+                    'ecole__nom_ecole': ens.ecole.nom_ecole if ens.ecole else None
+                })
+            except Enseignant.DoesNotExist:
+                return JsonResponse({'error': 'Enseignant non trouvé'}, status=404)
+
+        data = list(Enseignant.objects.select_related('ecole').values(
+            'id', 'numero_reg', 'nom_prenom', 'sexe', 'mle', 'langue_travail', 'ecole__nom_ecole'
+        ))
+        return JsonResponse(data, safe=False)
+
+    # ==========================================
+    # PERMISSIONS (Pour PUT et DELETE)
+    # ==========================================
+    is_admin = request.user.is_superuser or getattr(request.user, 'role', '') in ['Directeur', 'Administrateur']
+    if not is_admin:
+        return JsonResponse({'error': 'Accès interdit'}, status=403)
+
+    # ==========================================
+    # SUPPRESSION (DELETE)
+    # ==========================================
+    if request.method == 'DELETE' and pk:
+        try:
+            Enseignant.objects.get(pk=pk).delete()
+            return JsonResponse({'success': True})
+        except Enseignant.DoesNotExist:
+            return JsonResponse({'error': 'Enseignant non trouvé'}, status=404)
+
+    # ==========================================
+    # MISE À JOUR (PUT)
+    # ==========================================
+    if request.method == 'PUT' and pk:
+        try:
+            with transaction.atomic(): # Sécurité lors de la modification
+                ens = Enseignant.objects.select_related('ecole').get(pk=pk)
+                data = json.loads(request.body)
+
+                # Mise à jour des champs simples
+                ens.numero_reg = data.get('numero_reg', ens.numero_reg)
+                ens.nom_prenom = data.get('nom_prenom', ens.nom_prenom)
+                ens.sexe = data.get('sexe', ens.sexe)
+                ens.mle = data.get('mle', ens.mle)
+                ens.langue_travail = data.get('langue_travail', ens.langue_travail)
+
+                # MISE À JOUR DE L'ÉCOLE (Sécurisé avec l'ID)
+                ecole_id = data.get('ecole_id')
+                if ecole_id:
+                    # On vérifie que l'école existe bien avant de l'affecter
+                    ens.ecole = Ecole.objects.get(pk=ecole_id)
+                elif ecole_id is None and 'ecole_id' in data:
+                    # Si le front envoie explicitement null, on détache l'enseignant de son école
+                    ens.ecole = None
+
+                ens.save()
+                return JsonResponse({'success': True})
+
+        except Ecole.DoesNotExist:
+            return JsonResponse({'error': 'École spécifiée introuvable'}, status=400)
+        except Enseignant.DoesNotExist:
+            return JsonResponse({'error': 'Enseignant non trouvé'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+
+@login_required
+def api_abs_eleves_q(request, pk=None):
+    if request.method == 'GET':
+        data = list(AbsenceQuotidienneEleve.objects.select_related('eleve__ecole').values(
+            'id', 'date_absence', 'eleve__nom_prenom', 'eleve__classe', 'total_absences', 'eleve__ecole__nom_ecole'
+        ))
+        return JsonResponse(data, safe=False)
+
+# Pour les autres absences, on les met à jour aussi pour la suppression de base
+@login_required
+def api_abs_eleves_m(request, pk=None):
+
+    # --- 1. RECUPERATION DES DONNEES (GET) ---
+    if request.method == 'GET':
+        # On récupère toutes les absences mensuelles
+        # select_related permet de récupérer l'élève et son école en une seule requête SQL (très rapide)
+        queryset = AbsenceMensuelleEleve.objects.select_related('eleve__ecole').all().order_by('-mois')
+
+        # On convertit en dictionnaire pour l'API
+        # Les clés correspondent EXACTEMENT aux "data: '...'" de ton JavaScript
+        data = list(queryset.values(
+            'id',                      # Indispensable pour les boutons Modifier/Supprimer
+            'mois',                   # data: 'mois'
+            'total_absences',         # data: 'total_absences'
+            'eleve__nom_prenom',      # data: 'eleve__nom_prenom'
+            'eleve__classe',          # data: 'eleve__classe'
+            'eleve__ecole__nom_ecole' # data: 'eleve__ecole__nom_ecole'
+        ))
+        return JsonResponse(data, safe=False)
+
+    # --- 2. DROITS ADMIN ---
+    is_admin = request.user.is_superuser or request.user.role in ['Directeur', 'Administrateur']
+    if not is_admin: return JsonResponse({'error': 'Interdit'}, status=403)
+
+    # --- 3. SUPPRESSION (DELETE) ---
+    if request.method == 'DELETE' and pk:
+        try:
+            AbsenceMensuelleEleve.objects.get(pk=pk).delete()
+            return JsonResponse({'success': True})
+        except:
+            return JsonResponse({'error': 'Non trouvé'}, status=404)
+
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+@login_required
+def api_abs_ens_q(request, pk=None):
+
+    if request.method == 'GET':
+
+        data = list(
+            AbsenceQuotidienneEnseignant.objects.select_related('enseignant')
+            .values(
+                'id',
+                'date_absence',
+                'abs_justifiees',
+                'abs_non_justifiees',
+                'enseignant__nom_prenom',
+                'enseignant__mle',
+                'enseignant__ecole__nom_ecole',
             )
-        return redirect("/dashboard/")
-    
-    response = requests.get(url, headers=headers)
-    if response.status_code != 200:
-        return HttpResponse("Erreur récupération Kobo")
+        )
 
-    data = response.json()
-    corrections = Correction.objects.filter(kobo_id=kobo_id)
-    corrections_dict = {c.column_name: c.new_value for c in corrections}
-    editable_data = {k: corrections_dict.get(k, v) for k, v in data.items() if not k.startswith('_') and not k.startswith('meta/')}
-    return render(request, 'dashboard/edit.html', {'kobo_id': kobo_id, 'data': editable_data})
+        return JsonResponse(data, safe=False)
 
+    is_admin = request.user.is_superuser or request.user.role in ['Directeur', 'Administrateur']
+    if not is_admin:
+        return JsonResponse({'error': 'Interdit'}, status=403)
+
+    if request.method == 'DELETE' and pk:
+        try:
+            AbsenceQuotidienneEnseignant.objects.get(pk=pk).delete()
+            return JsonResponse({'success': True})
+        except:
+            return JsonResponse({'error': 'Non trouvé'}, status=404)
+
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
 @login_required
-def delete_record(request, kobo_id):
-    form_uid = FORMS_CONFIG[0]['uid']
-    url = f"https://kf.kobotoolbox.org/api/v2/assets/{form_uid}/data/{kobo_id}/"
-    headers = {"Authorization": f"Token {API_TOKEN}"}
+def api_abs_ens_m(request, pk=None):
 
-    response = requests.delete(url, headers=headers)
-    if response.status_code in [200, 204]:
-        Correction.objects.filter(kobo_id=kobo_id).delete()
-        messages.success(request, "Enregistrement supprimé.")
-    else:
-        messages.error(request, f"Erreur API {response.status_code}")
-    return redirect("/dashboard/")
-# ==================================================
-# ==========================
-# VUES API
-# ==========================
-@login_required
-def api_dashboard_data(request):
-    """
-    API AJAX : Charge TOUS les tableaux Kobo.
-    Utile pour le scrollIntoView ou le refresh dynamique.
-    """
-    uid = request.GET.get('uid')  # UID demandé pour scroll futur
-    context = _get_dashboard_data(request, forms_config=FORMS_CONFIG)
+    if request.method == 'GET':
 
-    # Rendu du template partiel (Zone tableau)
-    html_content = render_to_string('dashboard/table_content.html', context, request=request)
-    
-    return JsonResponse({'html': html_content})
+        data = list(
+            AbsenceMensuelleEnseignant.objects.select_related('enseignant')
+            .values(
+                'id',
+                'mois',
+                'abs_justifiees',
+                'abs_non_justifiees',
+                'enseignant__nom_prenom',
+                'enseignant__mle',
+                'enseignant__ecole__nom_ecole',
+            )
+        )
 
+        return JsonResponse(data, safe=False)
 
-# ==========================
-# VUES PRINCIPALES
-# ==========================
+    is_admin = request.user.is_superuser or request.user.role in ['Directeur', 'Administrateur']
+    if not is_admin:
+        return JsonResponse({'error': 'Interdit'}, status=403)
 
-def home(request):
-    """Vue d'accueil (Graphiques globaux)"""
-    context = _get_dashboard_data(request)
-    return render(request, 'dashboard/home.html', context)
+    if request.method == 'DELETE' and pk:
+        try:
+            AbsenceMensuelleEnseignant.objects.get(pk=pk).delete()
+            return JsonResponse({'success': True})
+        except:
+            return JsonResponse({'error': 'Non trouvé'}, status=404)
 
-
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
 # --- 1. LISTE DES ARTICLES ---
 
 def blog_view(request):
     # 1. Récupérer TOUS les articles pour la liste principale
     posts = BlogPost.objects.all().order_by('-created_at')
-    
+
     # 2. Séparer images et vidéos
     images = posts.filter(image__isnull=False).exclude(image="")
     videos = posts.filter(video_url__isnull=False).exclude(video_url="")
